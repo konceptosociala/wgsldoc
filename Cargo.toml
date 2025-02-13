@@ -1,0 +1,12 @@
+[package]
+name = "wgsldoc"
+version = "0.1.0"
+edition = "2021"
+categories = ["documentation"]
+description = "Documentation generator for WGSL shaders"
+keywords = ["wgsl", "docs", "documentation"]
+license = "Unlicense"
+readme = "README.md"
+repository = "https://github.com/konceptosociala/wgsldoc"
+
+[dependencies]
