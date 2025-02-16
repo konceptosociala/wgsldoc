@@ -1,0 +1,76 @@
+SHADER = _{ SOI ~ GLOBAL_DOCS? ~ (IMPORT|FUNCTION|STRUCTURE)* ~ EOI }
+
+// IMPORTS
+
+IMPORT_PATH = { PATH }
+
+MODULE_NAME = { IDENT }
+
+IMPORT = { DOCS? ~ "#import" ~ IMPORT_PATH ~ "as" ~ MODULE_NAME }
+
+// STRUCTURES
+
+STRUCTURE = { DOCS? ~ "struct" ~ IDENT ~ "{" ~ FIELDS ~ "}" }
+
+FIELDS = { (FIELD ~ ",")* ~ FIELD? }
+
+FIELD = { DOCS? ~ IDENT ~ ":" ~ TYPE }
+
+// FUNCTIONS
+
+FUNCTION = { DOCS? ~ "fn" ~ IDENT ~ "(" ~ ARGS? ~ ")" ~ RETURN? ~ CODE_BLOCK }
+
+ARGS = { (ARG ~ ",")* ~ ARG? }
+
+ARG = { DOCS? ~ IDENT ~ ":" ~ FUNCTION_TYPE }
+
+RETURN = { "->" ~ TYPE }
+
+CODE_BLOCK  = _{ "{" ~ (CODE_CONTENT)* ~ "}" }
+CODE_CONTENT = _{ (!("{" | "}")) ~ ANY | CODE_BLOCK }
+
+// ENUMS
+
+ENUM = { "// @enum" }
+
+// TYPES
+
+FUNCTION_TYPE = { FUNCTION_POINTER | PRIMITIVE | VECTOR | PATH_TYPE }
+
+TYPE = { PRIMITIVE | VECTOR | PATH_TYPE }
+
+FUNCTION_POINTER = { "ptr" ~ "<" ~ "function" ~ "," ~ TYPE ~ ">" }
+
+PRIVATE_POINTER = { "ptr" ~ "<" ~ "private" ~ "," ~ TYPE ~ ">" }
+
+PATH_TYPE = { (MODULE ~ "::")? ~ IDENT }
+
+MODULE = { IDENT }
+
+PRIMITIVE = { BOOLEAN | NUMBER }
+
+BOOLEAN = { "bool" }
+
+NUMBER = { ("f" ~ ("32"|"64")) | (("i"|"u") ~ ("8"|"16"|"32"|"64"))  }
+
+VECTOR = { "vec" ~ ("2"|"3"|"4") ~ "<" ~ PRIMITIVE ~ ">" }
+
+// GENERIC
+
+IDENT = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+
+PATH = @{ (ASCII_ALPHANUMERIC|"/"|"."|"_")+ }
+
+// DOCS
+
+GLOBAL_DOCS = { ("//!" ~ DOCS_CONTENT)+ }
+
+DOCS = { ("///" ~ DOCS_CONTENT)+ }
+
+DOCS_CONTENT = @{ (!NEWLINE ~ ANY)* }
+
+// BUILTIN
+
+COMMENT = _{ "//" ~ !("/"|"!") ~ (!NEWLINE ~ ANY)* }
+
+WHITESPACE = _{ " " | "\t" | "\n" | "\r\n" }
