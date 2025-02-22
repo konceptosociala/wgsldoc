@@ -9,3 +9,8 @@ readme = "README.md"
 repository = "https://github.com/konceptosociala/wgsldoc"
 
 [dependencies]
+anyhow = "1.0.96"
+pest = { version = "2.7.15", features = ["pretty-print"] }
+pest_derive = "2.7.15"
+thiserror = "2.0.11"
+yew = { version = "0.21.0", features = ["csr"] }
