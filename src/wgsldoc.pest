@@ -49,7 +49,9 @@ MODULE = { IDENT }
 
 PRIMITIVE = { ("f" ~ ("32"|"64")) | (("i"|"u") ~ ("8"|"16"|"32"|"64")) | "bool" }
 
-VECTOR = { "vec" ~ ("2"|"3"|"4") ~ "<" ~ PRIMITIVE ~ ">" }
+VECTOR = { "vec" ~ VECTOR_DIMENSION ~ "<" ~ PRIMITIVE ~ ">" }
+
+VECTOR_DIMENSION = { "2"|"3"|"4" }
 
 // GENERIC
 

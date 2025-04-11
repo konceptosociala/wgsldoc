@@ -8,11 +8,13 @@
 /// Aabb struct docs
 struct Aabb {
     /// Field1 docs
-    start: vec3<f32>,
+    start: vec2<f32>,
     end: vec3<f32>,
 
     test_field: bool,
     test_field2: u32,
+    test_field3: Path,
+    test_field3: Mod::Path,
 }
 
 /// Function docs
