@@ -1,6 +1,6 @@
 use pest::iterators::Pair;
 
-use crate::model::{structure::{Field, Structure}, types::Type};
+use crate::models::{structure::{Field, Structure}, types::Type};
 use super::{FromPest, InvalidPestRule, Rule};
 
 impl FromPest for Structure {
@@ -10,22 +10,25 @@ impl FromPest for Structure {
     {
         match element.as_rule() {
             Rule::STRUCTURE => {
-                let mut structure = Structure::default();
+                let mut docs = None;
+                let mut name = String::new();
+                let mut fields = vec![];
 
                 for struct_element in element.into_inner() {
                     match struct_element.as_rule() {
                         Rule::DOCS => {
-                            for docs in struct_element.into_inner() {
-                                structure.docs = docs.as_span().as_str().to_owned();
+                            for docs_element in struct_element.into_inner() {
+                                docs = Some(docs_element.as_span().as_str().to_owned())
+                                    .filter(|s| !s.is_empty());
                             }
                         },
                         Rule::IDENT => {
-                            structure.name = struct_element.as_span().as_str().to_owned();
+                            name = struct_element.as_span().as_str().to_owned();
                         },
                         Rule::FIELDS => {
                             for fields_element in struct_element.into_inner() {
                                 if let Rule::FIELD = fields_element.as_rule() {
-                                    structure.fields.push(Field::from_pest(fields_element)?);
+                                    fields.push(Field::from_pest(fields_element)?);
                                 }
                             }
                         }
@@ -33,7 +36,7 @@ impl FromPest for Structure {
                     }
                 }
                 
-                Ok(structure)
+                Ok(Structure::new(docs, name, fields))
             },
             _ => Err(
                 InvalidPestRule {
@@ -52,26 +55,29 @@ impl FromPest for Field {
     {
         match element.as_rule() {
             Rule::FIELD => {
-                let mut field = Field::default();
+                let mut docs = None;
+                let mut name = String::new();
+                let mut ty = Type::default();
 
                 for field_element in element.into_inner() {
                     match field_element.as_rule() {
                         Rule::DOCS => {
                             for docs_element in field_element.into_inner() {
-                                field.docs = docs_element.as_span().as_str().to_owned();
+                                docs = Some(docs_element.as_span().as_str().to_owned())
+                                    .filter(|s| !s.is_empty());
                             }
                         },
                         Rule::IDENT => {
-                            field.name = field_element.as_span().as_str().to_owned();
+                            name = field_element.as_span().as_str().to_owned();
                         },
                         Rule::TYPE => {
-                            field.ty = Type::from_pest(field_element)?;
+                            ty = Type::from_pest(field_element)?;
                         },
                         _ => {},
                     }
                 }
                 
-                Ok(field)
+                Ok(Field::new(docs, name, ty))
             },
             _ => Err(
                 InvalidPestRule {

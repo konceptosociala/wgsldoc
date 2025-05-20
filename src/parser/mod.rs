@@ -1,10 +1,9 @@
-use std::collections::{HashMap, HashSet};
 use pest::iterators::Pair;
 use pest_derive::Parser;
 use thiserror::Error;
 
+pub mod error;
 pub mod import;
-pub mod module;
 pub mod structure;
 pub mod types;
 
@@ -22,5 +21,5 @@ pub trait FromPest {
 }
 
 #[derive(Parser)]
-#[grammar = "wgsldoc.pest"]
+#[grammar = "parser/wgsldoc.pest"]
 pub struct WgslParser;

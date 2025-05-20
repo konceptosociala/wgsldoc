@@ -1,7 +1,7 @@
 use pest::Parser;
 use wgsldoc::{
-    model::structure::Structure, 
-    parser::{FromPest, Rule, WgslParser}, view::WgslDocApp,
+    models::structure::Structure, 
+    parser::{FromPest, Rule, WgslParser},
 };
 
 const SHADER: &str = include_str!("../test_shader.wgsl");
@@ -20,8 +20,6 @@ fn main() -> anyhow::Result<()> {
     }
 
     dbg!(&structures);
-
-    yew::Renderer::<WgslDocApp>::new().render();
 
     Ok(())
 }
