@@ -1,6 +1,4 @@
-use linked_hash_set::LinkedHashSet;
-
-use super::import::Import;
+use super::import::{Import, RegisterImports};
 
 #[derive(Debug)]
 pub enum Type {
@@ -62,11 +60,19 @@ pub enum VectorDimension {
     D4,
 }
 
+#[derive(Debug, Default, PartialEq, Eq)]
+pub enum ImportModule {
+    #[default]
+    Undefined,
+    Named(String),
+    This,
+}
+
 #[derive(Debug)]
 pub struct PathType {
     module: Option<String>,
     name: String,
-    imported: bool,
+    import_module: ImportModule,
 }
 
 impl PathType {
@@ -77,20 +83,8 @@ impl PathType {
         PathType { 
             module, 
             name, 
-            imported: false,
+            import_module: ImportModule::Undefined,
         }
-    }
-
-    pub fn import(&mut self, imports: &LinkedHashSet<Import>) -> bool {
-        if let Some(module_name) = &self.module {
-            for import in imports {
-                if import.name() == module_name {
-                    self.imported = true;
-                }
-            }
-        }
-
-        self.imported
     }
     
     pub fn module(&self) -> Option<&str> {
@@ -101,7 +95,24 @@ impl PathType {
         &self.name
     }
     
-    pub fn imported(&self) -> bool {
-        self.imported
+    pub fn import_module(&self) -> &ImportModule {
+        &self.import_module
+    }
+}
+
+impl RegisterImports for PathType {
+    fn register_imports(&mut self, imports: &[Import]) -> bool {
+        let mut registered = false;
+
+        if let Some(module_name) = &self.module {
+            for import in imports {
+                if import.registered() && import.name() == module_name {
+                    self.import_module = ImportModule::Named(import.name().to_owned());
+                    registered = true;
+                }
+            }
+        }
+
+        registered
     }
 }

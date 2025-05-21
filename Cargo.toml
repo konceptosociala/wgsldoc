@@ -10,7 +10,6 @@ repository = "https://github.com/konceptosociala/wgsldoc"
 
 [dependencies]
 anyhow = "1.0.96"
-linked_hash_set = "0.1.5"
 log = "0.4.27"
 pest = { version = "2.7.15", features = ["pretty-print"] }
 pest_derive = "2.7.15"

@@ -28,8 +28,10 @@ impl Import {
     }
 
     pub fn register(&mut self, file_registry: &HashSet<PathBuf>) -> bool {
-        if file_registry.contains(self.path()) {
-            self.registered = true;
+        for file in file_registry {
+            if file.ends_with(self.path()) {
+                self.registered = true;
+            }
         }
 
         self.registered
@@ -53,3 +55,7 @@ impl Import {
 }
 
 impl_eq_name!(Import::name);
+
+pub trait RegisterImports {
+    fn register_imports(&mut self, imports: &[Import]) -> bool;
+}

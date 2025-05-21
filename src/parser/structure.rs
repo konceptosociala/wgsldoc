@@ -1,4 +1,3 @@
-use linked_hash_set::LinkedHashSet;
 use pest::iterators::Pair;
 
 use crate::models::{structure::{Field, Structure}, types::Type};
@@ -13,7 +12,7 @@ impl FromPest for Structure {
             Rule::STRUCTURE => {
                 let mut docs = None;
                 let mut name = String::new();
-                let mut fields = LinkedHashSet::new();
+                let mut fields = vec![];
 
                 for struct_element in element.into_inner() {
                     match struct_element.as_rule() {
@@ -30,10 +29,11 @@ impl FromPest for Structure {
                             for fields_element in struct_element.into_inner() {
                                 if let Rule::FIELD = fields_element.as_rule() {
                                     let field = Field::from_pest(fields_element)?;
-                                    let field_name = field.name().to_owned();
                                     
-                                    if !fields.insert(field) {
-                                        log::warn!("Field with name `{field_name}` already exists in structure `{name}`!")
+                                    if fields.contains(&field) {
+                                        log::warn!("Field with name `{}` already exists in structure `{name}`!", field.name())
+                                    } else {
+                                        fields.push(field);
                                     }
                                 }
                             }

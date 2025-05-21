@@ -1,14 +1,12 @@
-use linked_hash_set::LinkedHashSet;
-
 use crate::impl_eq_name;
 
-use super::types::{PathType, Primitive, Type, Vector};
+use super::{import::{Import, RegisterImports}, types::{PathType, Primitive, Type, Vector}};
 
 #[derive(Debug)]
 pub struct Function {
     docs: Option<String>,
     name: String,
-    args: LinkedHashSet<Arg>,
+    args: Vec<Arg>,
     return_ty: Option<Type>
 }
 
@@ -16,7 +14,7 @@ impl Function {
     pub fn new(
         docs: Option<String>, 
         name: String, 
-        args: LinkedHashSet<Arg>, 
+        args: Vec<Arg>, 
         return_ty: Option<Type>,
     ) -> Function {
         Function { docs, name, args, return_ty }
@@ -30,12 +28,26 @@ impl Function {
         &self.name
     }
     
-    pub fn args(&self) -> &LinkedHashSet<Arg> {
+    pub fn args(&self) -> &[Arg] {
         &self.args
     }
     
     pub fn return_type(&self) -> Option<&Type> {
         self.return_ty.as_ref()
+    }
+}
+
+impl RegisterImports for Function {
+    fn register_imports(&mut self, imports: &[Import]) -> bool {
+        let mut registered = false;
+
+        for arg in &mut self.args {
+            if arg.register_imports(imports) {
+                registered = true;
+            }
+        }
+
+        registered
     }
 }
 
@@ -67,6 +79,22 @@ impl Arg {
     
     pub fn argument_type(&self) -> &FunctionType {
         &self.ty
+    }
+}
+
+impl RegisterImports for Arg {
+    fn register_imports(&mut self, imports: &[Import]) -> bool {
+        match &mut self.ty {
+            FunctionType::FunctionPointer(ty) => {
+                if let Type::Path(ref mut path_type) = ty {
+                    return path_type.register_imports(imports);
+                }
+
+                false
+            },
+            FunctionType::Path(ref mut ty) => ty.register_imports(imports),
+            _ => false,
+        }
     }
 }
 

@@ -1,4 +1,3 @@
-use linked_hash_set::LinkedHashSet;
 use pest::iterators::Pair;
 
 use crate::models::{function::{Arg, Function, FunctionType}, types::{PathType, Primitive, Type, Vector}};
@@ -14,7 +13,7 @@ impl FromPest for Function {
             Rule::FUNCTION => {
                 let mut docs = None;
                 let mut name = String::new();
-                let mut args = LinkedHashSet::new();
+                let mut args = vec![];
                 let mut return_ty = None;
 
                 for function_element in element.into_inner() {
@@ -32,10 +31,11 @@ impl FromPest for Function {
                             for args_element in function_element.into_inner() {
                                 if let Rule::ARG = args_element.as_rule() {
                                     let arg = Arg::from_pest(args_element)?;
-                                    let arg_name = arg.name().to_owned();
                                     
-                                    if !args.insert(arg) {
-                                        log::warn!("Argument with name `{arg_name}` already exists in function `{name}`!")
+                                    if args.contains(&arg) {
+                                        log::warn!("Argument with name `{}` already exists in function `{name}`!", arg.name())
+                                    } else {
+                                        args.push(arg);
                                     }
                                 }
                             }

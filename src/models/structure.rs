@@ -1,21 +1,19 @@
-use linked_hash_set::LinkedHashSet;
-
 use crate::impl_eq_name;
 
-use super::types::Type;
+use super::{import::{Import, RegisterImports}, types::Type};
 
 #[derive(Debug)]
 pub struct Structure {
     docs: Option<String>,
     name: String,
-    fields: LinkedHashSet<Field>,
+    fields: Vec<Field>,
 }
 
 impl Structure {
     pub fn new(
         docs: Option<String>,
         name: String,
-        fields: LinkedHashSet<Field>,
+        fields: Vec<Field>,
     ) -> Structure {
         Structure { docs, name, fields }
     }
@@ -28,8 +26,22 @@ impl Structure {
         &self.name
     }
     
-    pub fn fields(&self) -> &LinkedHashSet<Field> {
+    pub fn fields(&self) -> &[Field] {
         &self.fields
+    }
+}
+
+impl RegisterImports for Structure {
+    fn register_imports(&mut self, imports: &[Import]) -> bool {
+        let mut registered = false;
+
+        for field in &mut self.fields {
+            if field.register_imports(imports) {
+                registered = true;
+            }
+        }
+
+        registered
     }
 }
 
@@ -61,6 +73,16 @@ impl Field {
     
     pub fn field_type(&self) -> &Type {
         &self.ty
+    }
+}
+
+impl RegisterImports for Field {
+    fn register_imports(&mut self, imports: &[Import]) -> bool {
+        if let Type::Path(ty) = &mut self.ty {
+            return ty.register_imports(imports);
+        }
+
+        false
     }
 }
 

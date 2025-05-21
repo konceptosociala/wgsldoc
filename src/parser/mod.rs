@@ -1,5 +1,4 @@
 use error::ParsingError;
-use linked_hash_set::LinkedHashSet;
 use pest::{iterators::Pair, Parser};
 use pest_derive::Parser;
 
@@ -28,34 +27,40 @@ impl WgslParser {
         let shader_elements = WgslParserInner::parse(Rule::SHADER, shader)
             .map_err(|e| ParsingError::InputParsingError(Box::new(e)))?;
 
-        let mut imports = LinkedHashSet::new();
-        let mut functions = LinkedHashSet::new();
-        let mut structures = LinkedHashSet::new();
+        let mut imports = vec![];
+        let mut functions = vec![];
+        let mut structures = vec![];
 
         for shader_element in shader_elements {
             match shader_element.as_rule() {
                 Rule::STRUCTURE => {
                     let structure = Structure::from_pest(shader_element)?;
                     let name = structure.name().to_owned();
-                    
-                    if !structures.insert(structure) {
-                        log::warn!("Structure with name `{name}` already exists!")
+
+                    if structures.contains(&structure) {
+                        log::warn!("Structure with name `{}` already exists!", name);
+                    } else {
+                        structures.push(structure);
                     }
                 },
                 Rule::FUNCTION => {
                     let function = Function::from_pest(shader_element)?;
                     let name = function.name().to_owned();
-                    
-                    if !functions.insert(function) {
-                        log::warn!("Function with name `{name}` already exists!")
+
+                    if functions.contains(&function) {
+                        log::warn!("Function with name `{}` already exists!", name);
+                    } else {
+                        functions.push(function);
                     }
                 },
                 Rule::IMPORT => {
                     let import = Import::from_pest(shader_element)?;
                     let name = import.name().to_owned();
-                    
-                    if !imports.insert(import) {
-                        log::warn!("Import with name `{name}` already exists!")
+
+                    if imports.contains(&import) {
+                        log::warn!("Import with name `{}` already exists!", name);
+                    } else {
+                        imports.push(import);
                     }
                 },
                 _ => {},
