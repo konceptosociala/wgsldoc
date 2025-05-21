@@ -1,10 +1,15 @@
-use std::{collections::HashSet, path::{Path, PathBuf}};
+use std::{
+    collections::HashSet, 
+    path::{Path, PathBuf},
+};
 
 use models::Wgsl;
 
+pub mod cli;
+pub mod generator;
 pub mod models;
 pub mod parser;
-pub mod generator;
+pub mod utils;
 
 pub struct Document {
     file_registry: HashSet<PathBuf>,
@@ -12,12 +17,12 @@ pub struct Document {
 }
 
 impl Document {
-    pub fn new(shaders: &[impl AsRef<Path>]) -> Document {
+    pub fn new(_shaders: &[impl AsRef<Path>]) -> Document {
 
         todo!("Document::new")
     }
 
-    pub fn open(directory: impl AsRef<Path>) -> Document {
+    pub fn open(_directory: impl AsRef<Path>) -> Document {
 
         todo!("Document::open")
     }

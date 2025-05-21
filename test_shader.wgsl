@@ -14,7 +14,7 @@ struct Aabb {
     test_field: bool,
     test_field2: u32,
     test_field3: Path,
-    test_field3: Mod::Path,
+    test_field4: Mod::Path,
 }
 
 /// Function docs

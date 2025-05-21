@@ -3,12 +3,12 @@ use pest::iterators::Pair;
 use thiserror::Error;
 
 use crate::models::types::{PathType, Primitive, Type, Vector, VectorDimension};
-use super::{FromPest, InvalidPestRule, Rule};
+use super::{error::ParsingError, FromPest, Rule};
 
 impl FromPest for Type {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, InvalidPestRule> 
-            where 
-                Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
+    where 
+        Self: Sized 
     {
         match element.as_rule() {
             Rule::TYPE => {
@@ -32,7 +32,7 @@ impl FromPest for Type {
                 Ok(ty)
             },
             _ => Err(
-                InvalidPestRule {
+                ParsingError::InvalidPestRule {
                     expected: Rule::TYPE,
                     found: element.as_rule(),
                 }
@@ -69,16 +69,16 @@ impl FromStr for Primitive {
 }
 
 impl FromPest for Primitive {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, InvalidPestRule> 
-            where 
-                Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
+    where 
+        Self: Sized 
     {
         match element.as_rule() {
             Rule::PRIMITIVE => Ok(
-                Primitive::from_str(element.as_span().as_str()).unwrap()
+                Primitive::from_str(element.as_span().as_str())?
             ),
             _ => Err(
-                InvalidPestRule {
+                ParsingError::InvalidPestRule {
                     expected: Rule::PRIMITIVE,
                     found: element.as_rule(),
                 }
@@ -88,30 +88,31 @@ impl FromPest for Primitive {
 }
 
 impl FromPest for Vector {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, InvalidPestRule> 
-            where 
-                Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
+    where 
+        Self: Sized 
     {
         match element.as_rule() {
             Rule::VECTOR => {
-                let mut vector = Vector::default();
+                let mut dimension = VectorDimension::default();
+                let mut ty = Primitive::default();
 
                 for vector_element in element.into_inner() {
                     match vector_element.as_rule() {
                         Rule::VECTOR_DIMENSION => {
-                            vector.dimension = VectorDimension::from_pest(vector_element)?;
+                            dimension = VectorDimension::from_pest(vector_element)?;
                         },
                         Rule::PRIMITIVE => {
-                            vector.ty = Primitive::from_pest(vector_element)?;
+                            ty = Primitive::from_pest(vector_element)?;
                         },
                         _ => {},
                     }
                 }
                 
-                Ok(vector)
+                Ok(Vector::new(dimension, ty))
             },
             _ => Err(
-                InvalidPestRule {
+                ParsingError::InvalidPestRule {
                     expected: Rule::VECTOR,
                     found: element.as_rule(),
                 }
@@ -140,16 +141,16 @@ impl FromStr for VectorDimension {
 }
 
 impl FromPest for VectorDimension {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, InvalidPestRule> 
-            where 
-                Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
+    where 
+        Self: Sized 
     {
         match element.as_rule() {
             Rule::VECTOR_DIMENSION => Ok(
-                VectorDimension::from_str(element.as_span().as_str()).unwrap()
+                VectorDimension::from_str(element.as_span().as_str())?
             ),
             _ => Err(
-                InvalidPestRule {
+                ParsingError::InvalidPestRule {
                     expected: Rule::VECTOR_DIMENSION,
                     found: element.as_rule(),
                 }
@@ -159,30 +160,32 @@ impl FromPest for VectorDimension {
 }
 
 impl FromPest for PathType {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, InvalidPestRule> 
-            where 
-                Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
+    where 
+        Self: Sized 
     {
         match element.as_rule() {
             Rule::PATH_TYPE => {
-                let mut path_type = PathType::default();
+                let mut module = None;
+                let mut name = String::new();
 
                 for path_type_element in element.into_inner() {
                     match path_type_element.as_rule() {
                         Rule::MODULE => {
-                            path_type.module = Some(path_type_element.as_span().as_str().to_owned());
+                            module = Some(path_type_element.as_span().as_str().to_owned())
+                                .filter(|s| !s.is_empty());
                         },
                         Rule::IDENT => {
-                            path_type.name = path_type_element.as_span().as_str().to_owned();
+                            name = path_type_element.as_span().as_str().to_owned();
                         }
                         _ => {},
                     }
                 }
 
-                Ok(path_type)
+                Ok(PathType::new(module, name))
             },
             _ => Err(
-                InvalidPestRule {
+                ParsingError::InvalidPestRule {
                     expected: Rule::PATH_TYPE,
                     found: element.as_rule(),
                 }

@@ -2,7 +2,6 @@
 
 const MAX_CHUNKS: u32 = 64;
 
-// FIXME: use `log2(MAX_CHUNKS) + 5` instead of hardcoding
 const MAX_STACK: u32 = 11;
 
 const MAX_NODES: u32 = 2 * MAX_CHUNKS - 1;

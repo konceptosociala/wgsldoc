@@ -1,18 +1,19 @@
+use linked_hash_set::LinkedHashSet;
 use pest::iterators::Pair;
 
 use crate::models::{structure::{Field, Structure}, types::Type};
-use super::{FromPest, InvalidPestRule, Rule};
+use super::{error::ParsingError, FromPest, Rule};
 
 impl FromPest for Structure {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, InvalidPestRule> 
-            where 
-                Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
+    where 
+        Self: Sized 
     {
         match element.as_rule() {
             Rule::STRUCTURE => {
                 let mut docs = None;
                 let mut name = String::new();
-                let mut fields = vec![];
+                let mut fields = LinkedHashSet::new();
 
                 for struct_element in element.into_inner() {
                     match struct_element.as_rule() {
@@ -28,7 +29,12 @@ impl FromPest for Structure {
                         Rule::FIELDS => {
                             for fields_element in struct_element.into_inner() {
                                 if let Rule::FIELD = fields_element.as_rule() {
-                                    fields.push(Field::from_pest(fields_element)?);
+                                    let field = Field::from_pest(fields_element)?;
+                                    let field_name = field.name().to_owned();
+                                    
+                                    if !fields.insert(field) {
+                                        log::warn!("Field with name `{field_name}` already exists in structure `{name}`!")
+                                    }
                                 }
                             }
                         }
@@ -39,7 +45,7 @@ impl FromPest for Structure {
                 Ok(Structure::new(docs, name, fields))
             },
             _ => Err(
-                InvalidPestRule {
+                ParsingError::InvalidPestRule {
                     expected: Rule::STRUCTURE,
                     found: element.as_rule(),
                 }
@@ -49,9 +55,9 @@ impl FromPest for Structure {
 }
 
 impl FromPest for Field {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, InvalidPestRule> 
-            where 
-                Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
+    where 
+        Self: Sized 
     {
         match element.as_rule() {
             Rule::FIELD => {
@@ -80,7 +86,7 @@ impl FromPest for Field {
                 Ok(Field::new(docs, name, ty))
             },
             _ => Err(
-                InvalidPestRule {
+                ParsingError::InvalidPestRule {
                     expected: Rule::FIELD,
                     found: element.as_rule(),
                 }

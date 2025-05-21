@@ -28,8 +28,7 @@ struct TransformUniform {
     inverse_matrix: mat4x4<f32>,
 };
 
-// FIXME: remove push constants
-// var<push_constant> transform: TransformUniform;
+var<push_constant> transform: TransformUniform;
 
 // Entries
 @vertex

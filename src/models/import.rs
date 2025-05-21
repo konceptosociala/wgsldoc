@@ -1,10 +1,11 @@
 use std::{
     collections::HashSet, 
-    hash::Hash, 
     path::{Path, PathBuf},
 };
 
-#[derive(Debug, Clone, Eq)]
+use crate::impl_eq_name;
+
+#[derive(Debug, Clone)]
 pub struct Import {
     docs: Option<String>,
     path: PathBuf,
@@ -31,7 +32,7 @@ impl Import {
             self.registered = true;
         }
 
-        self.registered()
+        self.registered
     }
     
     pub fn docs(&self) -> Option<&str> {
@@ -51,15 +52,4 @@ impl Import {
     }
 }
 
-impl PartialEq for Import {
-    fn eq(&self, other: &Self) -> bool {
-        self.path == other.path && self.name == other.name
-    }
-}
-
-impl Hash for Import {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.path.hash(state);
-        self.name.hash(state);
-    }
-}
+impl_eq_name!(Import::name);

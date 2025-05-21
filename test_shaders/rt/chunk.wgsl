@@ -440,7 +440,6 @@ fn hit(
 //     return false;
 // }
 
-// TODO: Cannot transfer the processing of octotrees to a loop
 // {
 //     var prev_pos = vec3<f32>(0.0);
 //     var block_min = vec3<f32>(0.0);

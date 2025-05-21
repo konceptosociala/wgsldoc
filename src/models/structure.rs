@@ -1,4 +1,6 @@
-use std::hash::Hash;
+use linked_hash_set::LinkedHashSet;
+
+use crate::impl_eq_name;
 
 use super::types::Type;
 
@@ -6,14 +8,14 @@ use super::types::Type;
 pub struct Structure {
     docs: Option<String>,
     name: String,
-    fields: Vec<Field>,        
+    fields: LinkedHashSet<Field>,
 }
 
 impl Structure {
     pub fn new(
         docs: Option<String>,
         name: String,
-        fields: Vec<Field>,
+        fields: LinkedHashSet<Field>,
     ) -> Structure {
         Structure { docs, name, fields }
     }
@@ -26,28 +28,18 @@ impl Structure {
         &self.name
     }
     
-    pub fn fields(&self) -> &[Field] {
+    pub fn fields(&self) -> &LinkedHashSet<Field> {
         &self.fields
     }
 }
 
-impl PartialEq for Structure {
-    fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
-    }
-}
-
-impl Hash for Structure {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.name.hash(state);
-    }
-}
+impl_eq_name!(Structure::name);
 
 #[derive(Debug)]
 pub struct Field {
-    pub docs: Option<String>,
-    pub name: String,
-    pub ty: Type,
+    docs: Option<String>,
+    name: String,
+    ty: Type,
 }
 
 impl Field {
@@ -67,7 +59,9 @@ impl Field {
         &self.name
     }
     
-    pub fn ty(&self) -> &Type {
+    pub fn field_type(&self) -> &Type {
         &self.ty
     }
 }
+
+impl_eq_name!(Field::name);
