@@ -57,5 +57,7 @@ impl Import {
 impl_eq_name!(Import::name);
 
 pub trait RegisterImports {
-    fn register_imports(&mut self, imports: &[Import]) -> bool;
+    fn register_imports(&mut self, imports: &[Import]);
+
+    fn register_same_module_types(&mut self, type_names: &[String]);
 }

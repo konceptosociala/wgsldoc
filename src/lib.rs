@@ -56,15 +56,21 @@ impl Document {
                 import.register(&self.file_registry);
             }
 
+            let same_module_types = shader
+                .structures
+                .iter()
+                .map(|s| s.name().to_owned())
+                .collect::<Vec<_>>();
+
             for structure in &mut shader.structures {
                 structure.register_imports(&shader.imports);
+                structure.register_same_module_types(&same_module_types);
             }
 
             for function in &mut shader.functions {
                 function.register_imports(&shader.imports);
+                function.register_same_module_types(&same_module_types);
             }
-
-            // TODO: Add registration of same-module types
         }
 
         RegisteredDocument {

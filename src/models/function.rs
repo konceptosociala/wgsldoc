@@ -38,16 +38,24 @@ impl Function {
 }
 
 impl RegisterImports for Function {
-    fn register_imports(&mut self, imports: &[Import]) -> bool {
-        let mut registered = false;
-
+    fn register_imports(&mut self, imports: &[Import]) {
         for arg in &mut self.args {
-            if arg.register_imports(imports) {
-                registered = true;
-            }
+            arg.register_imports(imports)
         }
 
-        registered
+        if let Some(Type::Path(path_type)) = &mut self.return_ty {
+            path_type.register_imports(imports);
+        }
+    }
+
+    fn register_same_module_types(&mut self, type_names: &[String]) {
+        for arg in &mut self.args {
+            arg.register_same_module_types(type_names);
+        }
+
+        if let Some(Type::Path(path_type)) = &mut self.return_ty {
+            path_type.register_same_module_types(type_names);
+        }
     }
 }
 
@@ -83,17 +91,23 @@ impl Arg {
 }
 
 impl RegisterImports for Arg {
-    fn register_imports(&mut self, imports: &[Import]) -> bool {
+    fn register_imports(&mut self, imports: &[Import]) {
         match &mut self.ty {
-            FunctionType::FunctionPointer(ty) => {
-                if let Type::Path(ref mut path_type) = ty {
-                    return path_type.register_imports(imports);
-                }
-
-                false
+            FunctionType::FunctionPointer(Type::Path(ref mut path_type)) => {
+                path_type.register_imports(imports);
             },
             FunctionType::Path(ref mut ty) => ty.register_imports(imports),
-            _ => false,
+            _ => {},
+        }
+    }
+    
+    fn register_same_module_types(&mut self, type_names: &[String]) {
+        match &mut self.ty {
+            FunctionType::FunctionPointer(Type::Path(ref mut path_type)) => {
+                path_type.register_same_module_types(type_names);
+            },
+            FunctionType::Path(ref mut ty) => ty.register_same_module_types(type_names),
+            _ => {},
         }
     }
 }

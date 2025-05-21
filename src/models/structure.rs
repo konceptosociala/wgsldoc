@@ -32,16 +32,16 @@ impl Structure {
 }
 
 impl RegisterImports for Structure {
-    fn register_imports(&mut self, imports: &[Import]) -> bool {
-        let mut registered = false;
-
+    fn register_imports(&mut self, imports: &[Import]) {
         for field in &mut self.fields {
-            if field.register_imports(imports) {
-                registered = true;
-            }
+            field.register_imports(imports);
         }
-
-        registered
+    }
+    
+    fn register_same_module_types(&mut self, type_names: &[String]) {
+        for field in &mut self.fields {
+            field.register_same_module_types(type_names);
+        }
     }
 }
 
@@ -77,12 +77,16 @@ impl Field {
 }
 
 impl RegisterImports for Field {
-    fn register_imports(&mut self, imports: &[Import]) -> bool {
+    fn register_imports(&mut self, imports: &[Import]) {
         if let Type::Path(ty) = &mut self.ty {
-            return ty.register_imports(imports);
+            ty.register_imports(imports);
         }
-
-        false
+    }
+    
+    fn register_same_module_types(&mut self, type_names: &[String]) {
+        if let Type::Path(ty) = &mut self.ty {
+            ty.register_same_module_types(type_names);
+        }
     }
 }
 

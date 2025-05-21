@@ -101,18 +101,29 @@ impl PathType {
 }
 
 impl RegisterImports for PathType {
-    fn register_imports(&mut self, imports: &[Import]) -> bool {
-        let mut registered = false;
+    fn register_imports(&mut self, imports: &[Import]) {
+        if self.import_module != ImportModule::Undefined {
+            return;
+        }
 
         if let Some(module_name) = &self.module {
             for import in imports {
                 if import.registered() && import.name() == module_name {
                     self.import_module = ImportModule::Named(import.name().to_owned());
-                    registered = true;
                 }
             }
         }
+    }
 
-        registered
+    fn register_same_module_types(&mut self, type_names: &[String]) {
+        if self.import_module != ImportModule::Undefined {
+            return;
+        }
+
+        for type_name in type_names {
+            if *type_name == self.name {
+                self.import_module = ImportModule::This;
+            }
+        }
     }
 }
