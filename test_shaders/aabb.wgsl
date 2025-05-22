@@ -1,25 +1,33 @@
-//! **Axis-Aligned Bounding Box shader**
-//! Module that describes AABB data structures
-//! and functions to work with it
+//! # 📦 Axis-Aligned Bounding Box (AABB) Shader
+//! Module for defining AABBs and performing ray-box intersection tests.
+//!
+//! Depends on the `Ray` module (`ray.wgsl`) which provides ray structures and helpers.
 
-/// Ray import docs
-#import ray.wgsl as Ray
-
-/// Aabb struct docs
+/// 📐 Defines an axis-aligned bounding box using minimum and maximum 3D coordinates.
 struct Aabb {
-    /// Field1 docs
+    /// Minimum corner of the box (lowest x/y/z).
     start: vec3<f32>,
+    /// Maximum corner of the box (highest x/y/z).
     end: vec3<f32>,
 }
 
-/// Function docs
+/// 🔍 Tests whether a ray intersects a bounding box.
+/// 
+/// Updates the hit record with intersection details if a hit occurs.
 fn hit(
-    /// Function arg1 docs
+    /// The axis-aligned bounding box to test against.
     aabb: Aabb, 
+
+    /// The ray to test intersection with.
     ray: Ray::Ray, 
+
+    /// The minimum t-value for valid intersections.
     t_min: f32, 
+
+    /// The maximum t-value for valid intersections.
     t_max: f32,
-    /// Function arg5 docs
+
+    /// Pointer to a hit record that will be populated if the ray hits the box.
     record: ptr<function, Ray::HitRecord>,
 ) -> bool {
     var tmin = t_min;
@@ -41,29 +49,28 @@ fn hit(
     }
 
     (*record).t = tmin;
-    (*record).p = Ray::at(ray, (*record).t);
-    
-    let center = (aabb.end + aabb.start) * 0.5;    
-    let norm_dir = normalize(vec3<f32>((*record).p.x - center.x, (*record).p.y - center.y, (*record).p.z - center.z));
+    (*record).p = Ray::at(ray, tmin);
 
+    let center = (aabb.end + aabb.start) * 0.5;
+    let direction = normalize((*record).p - center);
+
+    // Estimate the normal based on the dominant direction from center
     (*record).normal = vec3<f32>(1.0, 1.0, 1.0);
 
-    if abs(norm_dir.x) >= abs(norm_dir.y) && abs(norm_dir.x) >= abs(norm_dir.z) {
+    if abs(direction.x) >= abs(direction.y) && abs(direction.x) >= abs(direction.z) {
         (*record).normal = vec3<f32>(1.0, 0.0, 0.0);
     }
-
-    if abs(norm_dir.y) >= abs(norm_dir.x) && abs(norm_dir.y) >= abs(norm_dir.z) {
+    if abs(direction.y) >= abs(direction.x) && abs(direction.y) >= abs(direction.z) {
         (*record).normal = vec3<f32>(0.0, 1.0, 0.0);
     }
-
-    if abs(norm_dir.z) >= abs(norm_dir.y) && abs(norm_dir.z) >= abs(norm_dir.x) {
+    if abs(direction.z) >= abs(direction.x) && abs(direction.z) >= abs(direction.y) {
         (*record).normal = vec3<f32>(0.0, 0.0, 1.0);
     }
 
+    // Flip normal to face against ray direction
     if dot(ray.direction, (*record).normal) >= 0.0 {
         (*record).normal = -(*record).normal;
     }
 
     return true;
 }
-

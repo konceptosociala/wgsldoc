@@ -9,6 +9,7 @@ pub mod function;
 
 #[derive(Debug)]
 pub struct Wgsl {
+    pub global_docs: Vec<String>,
     pub imports: Vec<Import>,
     pub functions: Vec<Function>,
     pub structures: Vec<Structure>,

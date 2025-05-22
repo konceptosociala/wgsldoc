@@ -27,6 +27,8 @@ impl WgslParser {
         let shader_elements = WgslParserInner::parse(Rule::SHADER, shader)
             .map_err(|e| ParsingError::InputParsingError(Box::new(e)))?;
 
+        // TODO: parse global docs
+        let mut global_docs = vec![];
         let mut imports = vec![];
         let mut functions = vec![];
         let mut structures = vec![];
@@ -35,30 +37,27 @@ impl WgslParser {
             match shader_element.as_rule() {
                 Rule::STRUCTURE => {
                     let structure = Structure::from_pest(shader_element)?;
-                    let name = structure.name().to_owned();
 
                     if structures.contains(&structure) {
-                        log::warn!("Structure with name `{}` already exists!", name);
+                        log::warn!("Structure with name `{}` already exists!", structure.name());
                     } else {
                         structures.push(structure);
                     }
                 },
                 Rule::FUNCTION => {
                     let function = Function::from_pest(shader_element)?;
-                    let name = function.name().to_owned();
 
                     if functions.contains(&function) {
-                        log::warn!("Function with name `{}` already exists!", name);
+                        log::warn!("Function with name `{}` already exists!", function.name());
                     } else {
                         functions.push(function);
                     }
                 },
                 Rule::IMPORT => {
                     let import = Import::from_pest(shader_element)?;
-                    let name = import.name().to_owned();
 
                     if imports.contains(&import) {
-                        log::warn!("Import with name `{}` already exists!", name);
+                        log::warn!("Import with name `{}` already exists!", import.name());
                     } else {
                         imports.push(import);
                     }
@@ -67,6 +66,6 @@ impl WgslParser {
             }
         }
 
-        Ok(Wgsl { imports, functions, structures })
+        Ok(Wgsl { global_docs, imports, functions, structures })
     }
 }
