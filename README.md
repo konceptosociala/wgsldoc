@@ -12,7 +12,7 @@ cargo install wgsldoc
 
 ## Usage
 After installation, you can run `wgsldoc` from the command line. 
-The following command will generate documentation for all WGSL files in the current directory, outputting the result
+The following command will generate documentation for all WGSL files (including `README.md` and `favicon.png` files) in the current directory, outputting the result
 to the `docs` directory:
 
 ```bash
