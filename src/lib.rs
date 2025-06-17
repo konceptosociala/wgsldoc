@@ -18,8 +18,11 @@ pub mod models;
 pub mod parser;
 pub mod utils;
 
+pub type IconData = Vec<u8>;
+
 pub struct Document {
     pkg_name: String,
+    favicon: IconData,
     readme: Option<String>,
     file_registry: HashSet<PathBuf>,
     shaders: Vec<Wgsl>
@@ -33,6 +36,7 @@ impl Document {
         log::info!("Loading shaders...");
 
         let mut readme = None;
+        let mut favicon = None;
         let mut file_registry = HashSet::new();
         let mut shaders = vec![];
 
@@ -40,15 +44,33 @@ impl Document {
             if path.as_ref().extension().is_some_and(|ext| ext == "wgsl") {
                 file_registry.insert(path.as_ref().to_owned());
 
-                let shader = fs::read_to_string(path)?;
-                shaders.push(WgslParser::parse(&shader)?);
-            } else if path.as_ref().file_name().is_some_and(|name| name == "README.md") {
-                readme = Some(fs::read_to_string(path)?);
+                if let Some(module_name) = path
+                    .as_ref()
+                    .file_stem()
+                    .and_then(|name| name.to_str()) 
+                {
+                    if module_name.starts_with('.') {
+                        continue;
+                    }
+
+                    let shader = fs::read_to_string(path)?;
+                    shaders.push(WgslParser::parse(module_name, &shader)?);
+                }
+            } else {
+                match path.as_ref()
+                    .file_name()
+                    .and_then(|name| name.to_str()) 
+                {
+                    Some("README.md") => readme = Some(fs::read_to_string(path)?),
+                    Some("favicon.png") => favicon = Some(fs::read(path)?),
+                    _ => {},
+                }
             }
         }
 
         Ok(Document {
             pkg_name: pkg_name.into(),
+            favicon: favicon.unwrap_or(assets::DEFAULT_FAVICON.to_vec()),
             readme,
             file_registry,
             shaders,
@@ -94,10 +116,19 @@ impl Document {
 
         RegisteredDocument {
             pkg_name: self.pkg_name,
+            favicon: self.favicon,
             readme: self.readme,
             file_registry: self.file_registry,
             shaders: self.shaders,
         }
+    }
+
+    pub fn pkg_name(&self) -> &str {
+        &self.pkg_name
+    }
+
+    pub fn favicon(&self) -> &IconData {
+        self.favicon.as_ref()
     }
     
     pub fn shaders(&self) -> &[Wgsl] {
@@ -115,6 +146,7 @@ impl Document {
 
 pub struct RegisteredDocument {
     pkg_name: String,
+    favicon: IconData,
     readme: Option<String>,
     file_registry: HashSet<PathBuf>,
     shaders: Vec<Wgsl>
@@ -138,6 +170,9 @@ impl RegisteredDocument {
         // @/css/pico.classless.min.css
         let pico_css_path = concat_path(&css_path, "pico.classless.min.css");
 
+        // @/favicon.png
+        let favicon_path = concat_path(&path, "favicon.png");
+
         // @/index.html
         let index_path = concat_path(&path, "index.html");
         let index_content = generator.generate_index(self.pkg_name(), path.as_ref(), self.readme());
@@ -147,11 +182,17 @@ impl RegisteredDocument {
         fs::create_dir_all(&modules_path)?;
 
         // @/modules/index.html
+        let modules = self.shaders
+            .iter()
+            .map(|shader| shader.module_info())
+            .collect::<Vec<_>>();
+
         let modules_index_path = concat_path(&modules_path, "index.html");
-        let modules_index_content = generator.generate_modules_index(self.pkg_name(), path.as_ref(), self.readme());
+        let modules_index_content = generator.generate_modules_index(self.pkg_name(), path.as_ref(), &modules);
 
         // Write to disk
         fs::write(pico_css_path, assets::PICO_CSS)?;
+        fs::write(favicon_path, self.favicon())?;
         fs::write(index_path, index_content)?;
         fs::write(modules_index_path, modules_index_content)?;
 
@@ -172,6 +213,10 @@ impl RegisteredDocument {
     
     pub fn readme(&self) -> Option<&str> {
         self.readme.as_deref()
+    }
+
+    pub fn favicon(&self) -> &IconData {
+        self.favicon.as_ref()
     }
 }
 

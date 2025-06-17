@@ -1,6 +1,6 @@
 //! # 📦 Axis-Aligned Bounding Box (AABB) Shader
 //! Module for defining AABBs and performing ray-box intersection tests.
-//!
+//! <br>
 //! Depends on the `Ray` module (`ray.wgsl`) which provides ray structures and helpers.
 
 /// 📐 Defines an axis-aligned bounding box using minimum and maximum 3D coordinates.
@@ -12,7 +12,7 @@ struct Aabb {
 }
 
 /// 🔍 Tests whether a ray intersects a bounding box.
-/// 
+/// <br>
 /// Updates the hit record with intersection details if a hit occurs.
 fn hit(
     /// The axis-aligned bounding box to test against.

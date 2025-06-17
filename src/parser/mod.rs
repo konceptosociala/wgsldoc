@@ -23,12 +23,11 @@ struct WgslParserInner;
 pub struct WgslParser;
 
 impl WgslParser {
-    pub fn parse(shader: &str) -> Result<Wgsl, ParsingError> {
+    pub fn parse(shader_name: &str, shader: &str) -> Result<Wgsl, ParsingError> {
         let shader_elements = WgslParserInner::parse(Rule::SHADER, shader)
             .map_err(|e| ParsingError::InputParsingError(Box::new(e)))?;
 
-        // TODO: parse global docs
-        let mut global_docs = vec![];
+        let mut global_docs = None;
         let mut imports = vec![];
         let mut functions = vec![];
         let mut structures = vec![];
@@ -62,10 +61,33 @@ impl WgslParser {
                         imports.push(import);
                     }
                 },
+                Rule::GLOBAL_DOCS => {
+                    for docs_element in shader_element.into_inner() {
+                        if global_docs.is_none() {
+                            global_docs = Some(String::new());
+                        }
+
+                        if let Some(global_docs) = &mut global_docs {
+                            if !global_docs.is_empty() {
+                                global_docs.push('\n');
+                            }
+
+                            global_docs.push_str(docs_element.as_span().as_str());
+                        }
+                            
+                        global_docs = global_docs.filter(|s| !s.is_empty());
+                    }
+                },
                 _ => {},
             }
         }
 
-        Ok(Wgsl { global_docs, imports, functions, structures })
+        Ok(Wgsl {
+            module_name: shader_name.to_string(),
+            global_docs,
+            imports,
+            functions,
+            structures,
+        })
     }
 }

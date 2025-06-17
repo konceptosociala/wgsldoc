@@ -2,10 +2,11 @@ use std::path::Path;
 
 use tera::Tera;
 
-use crate::models::{function::Function, import::Import, structure::Structure};
+use crate::models::{function::Function, import::Import, structure::Structure, ModuleInfo};
 
 pub mod assets {
     pub const PICO_CSS: &str = include_str!("static/pico.classless.min.css");
+    pub const DEFAULT_FAVICON: &[u8] = include_bytes!("static/default_favicon.png");
 }
 
 pub trait Generator {
@@ -36,34 +37,31 @@ pub trait Generator {
         &mut self, 
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
-        readme: Option<&str>,
+        modules: &[ModuleInfo],
     ) -> String;
 }
 
 pub struct TeraGenerator {
     tera: Tera,
+    base_url: Option<String>,
 }
 
 impl TeraGenerator {
     pub const BASE_TEMPLATE: &str = include_str!("templates/base.html.tera");
     pub const INDEX_TEMPLATE: &str = include_str!("templates/index.html.tera");
+    pub const MODULES_TEMPLATE: &str = include_str!("templates/modules.html.tera");
 
-    pub const TEMPLATES: [(&str, &str); 2] = [
+    pub const TEMPLATES: [(&str, &str); 3] = [
         ("base.html.tera", Self::BASE_TEMPLATE),
         ("index.html.tera", Self::INDEX_TEMPLATE),
+        ("modules.html.tera", Self::MODULES_TEMPLATE),
     ];
 
-    pub fn new() -> Self {
+    pub fn new(base_url: Option<String>) -> Self {
         let mut tera = Tera::default();
         tera.add_raw_templates(Self::TEMPLATES).unwrap();
 
-        TeraGenerator { tera }
-    }
-}
-
-impl Default for TeraGenerator {
-    fn default() -> Self {
-        Self::new()
+        TeraGenerator { tera, base_url }
     }
 }
 
@@ -98,13 +96,21 @@ impl Generator for TeraGenerator {
     ) -> String {
         let mut ctx = tera::Context::new();
         ctx.insert("pkg_name", pkg_name);
-        ctx.insert("assets_subpath", 
-            assets_subpath
-                .as_ref()
-                .to_str()
-                .unwrap_or("")
-                .trim_end_matches('/')
-        );
+        
+        if let Some(base_url) = &self.base_url {
+            ctx.insert("assets_subpath", 
+                base_url
+                    .trim_end_matches('/')
+            );
+        } else {
+            ctx.insert("assets_subpath",
+                assets_subpath
+                    .as_ref()
+                    .to_str()
+                    .unwrap_or("")
+                    .trim_end_matches('/')
+            );
+        }
 
         if let Some(readme) = readme {
             ctx.insert("readme", &markdown::to_html(readme));
@@ -117,9 +123,28 @@ impl Generator for TeraGenerator {
         &mut self, 
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
-        readme: Option<&str>,
+        modules: &[ModuleInfo],
     ) -> String {
-        // TODO: Implement modules index generation logic
-        String::from("generate_modules_index is not implemented yet")
+        let mut ctx = tera::Context::new();
+        ctx.insert("pkg_name", pkg_name);
+
+        if let Some(base_url) = &self.base_url {
+            ctx.insert("assets_subpath", 
+                base_url
+                    .trim_end_matches('/')
+            );
+        } else {
+            ctx.insert("assets_subpath",
+                assets_subpath
+                    .as_ref()
+                    .to_str()
+                    .unwrap_or("")
+                    .trim_end_matches('/')
+            );
+        }
+
+        ctx.insert("modules", modules);
+
+        self.tera.render("modules.html.tera", &ctx).unwrap()
     }
 }

@@ -18,8 +18,19 @@ impl FromPest for Structure {
                     match struct_element.as_rule() {
                         Rule::DOCS => {
                             for docs_element in struct_element.into_inner() {
-                                docs = Some(docs_element.as_span().as_str().to_owned())
-                                    .filter(|s| !s.is_empty());
+                                if docs.is_none() {
+                                    docs = Some(String::new());
+                                }
+
+                                if let Some(docs) = &mut docs {
+                                    if !docs.is_empty() {
+                                        docs.push('\n');
+                                    }
+
+                                    docs.push_str(docs_element.as_span().as_str());
+                                }
+                                    
+                                docs = docs.filter(|s| !s.is_empty());
                             }
                         },
                         Rule::IDENT => {

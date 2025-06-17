@@ -1,7 +1,7 @@
 use log::LevelFilter;
 use wgsldoc::{
     generator::TeraGenerator, 
-    Document,
+    Document
 };
 
 fn main() -> anyhow::Result<()> {
@@ -9,9 +9,10 @@ fn main() -> anyhow::Result<()> {
         .filter_level(LevelFilter::Info)
         .init();
 
+
     let document = Document::open("test_shaders", "test_shaders")?;
     let registered = document.register();
-    registered.generate(&mut TeraGenerator::new(), "/home/nutov2/wgsldoc")?;
+    registered.generate(&mut TeraGenerator::new(None), "/home/nutov2/wgsldoc")?;
     
     Ok(())
 }

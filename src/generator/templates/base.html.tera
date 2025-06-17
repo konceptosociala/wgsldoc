@@ -5,6 +5,7 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta name="color-scheme" content="light dark">
    <link rel="stylesheet" href="{{ assets_subpath }}/css/pico.classless.min.css">
+   <link rel="icon" href="{{ assets_subpath }}/favicon.png" type="image/png">
    <title>{{ pkg_name }} - WGSL documentation</title>
 </head>
 <body>
@@ -16,9 +17,9 @@
       <nav>
          <ul>
             <li><a href="{{ assets_subpath }}/index.html">Main page</a></li>
-            <li><a href="{{ assets_subpath }}/modules.html">Modules</a></li>
+            <li><a href="{{ assets_subpath }}/modules/index.html">Modules</a></li>
             {% if source -%} 
-               <li><a href="{{ source }}">Source</a></li>
+               <li><a href="{{ assets_subpath }}/{{ source }}">Source</a></li>
             {%- else -%}
                <li><span>Source</span></li>
             {%- endif %}
