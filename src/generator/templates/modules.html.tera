@@ -1,6 +1,7 @@
 {% extends "base.html.tera" %}
 {% block content %}
-   <h2>Available Modules</h2>
+   <h1>Available Modules</h1>
+   <hr>
    <ul>
       {% for module in modules %}
          {% if module.summary %}

@@ -1,0 +1,29 @@
+{% extends "base.html.tera" %}
+{% block content %}
+   <h1>Module <code>{{ module.name }}</code></h1>
+   <hr>
+   {{ module.summary }}
+   {% if functions %}
+      <h2>Functions</h2>
+      <hr>
+      {% for function in functions %}
+         {% if function.summary %}
+            <li><code><a href="{{ assets_subpath }}/modules/{{ module.name }}/fn.{{ function.name }}.html">{{ function.name }}</a></code> - {{ function.summary }}</li>
+         {% else %}
+            <li><code><a href="{{ assets_subpath }}/modules/{{ module.name }}/fn.{{ function.name }}.html">{{ function.name }}</a></code></li>
+         {% endif %}
+      {% endfor %}
+   {% endif %}
+   <br>
+   {% if structures %}
+      <h2>Structures</h2>
+      <hr>
+      {% for structure in structures %}
+         {% if structure.summary %}
+            <li><code><a href="{{ assets_subpath }}/modules/{{ module.name }}/struct.{{ structure.name }}.html">{{ structure.name }}</a></code> - {{ structure.summary }}</li>
+         {% else %}
+            <li><code><a href="{{ assets_subpath }}/modules/{{ module.name }}/struct.{{ structure.name }}.html">{{ structure.name }}</a></code></li>
+         {% endif %}
+      {% endfor %}
+   {% endif %}
+{% endblock content %}

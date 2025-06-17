@@ -12,7 +12,7 @@ fn main() -> anyhow::Result<()> {
 
     let document = Document::open("test_shaders", "test_shaders")?;
     let registered = document.register();
-    registered.generate(&mut TeraGenerator::new(None), "/home/nutov2/wgsldoc")?;
+    registered.generate(&mut TeraGenerator::new(None), "/home/nutov2/doc/wgsldoc-test")?;
     
     Ok(())
 }

@@ -169,13 +169,16 @@ impl RegisteredDocument {
 
         // @/css/pico.classless.min.css
         let pico_css_path = concat_path(&css_path, "pico.classless.min.css");
+        fs::write(pico_css_path, assets::PICO_CSS)?;
 
         // @/favicon.png
         let favicon_path = concat_path(&path, "favicon.png");
+        fs::write(favicon_path, self.favicon())?;
 
         // @/index.html
         let index_path = concat_path(&path, "index.html");
         let index_content = generator.generate_index(self.pkg_name(), path.as_ref(), self.readme());
+        fs::write(index_path, index_content)?;
 
         // @/modules
         let modules_path = concat_path(&path, "modules");
@@ -184,17 +187,23 @@ impl RegisteredDocument {
         // @/modules/index.html
         let modules = self.shaders
             .iter()
-            .map(|shader| shader.module_info())
+            .map(|shader| shader.info_plain_text())
             .collect::<Vec<_>>();
 
         let modules_index_path = concat_path(&modules_path, "index.html");
         let modules_index_content = generator.generate_modules_index(self.pkg_name(), path.as_ref(), &modules);
-
-        // Write to disk
-        fs::write(pico_css_path, assets::PICO_CSS)?;
-        fs::write(favicon_path, self.favicon())?;
-        fs::write(index_path, index_content)?;
         fs::write(modules_index_path, modules_index_content)?;
+
+        // @/modules/<module_name>/index.html
+        for shader in &self.shaders {
+            let module_path = concat_path(&modules_path, &shader.module_name);
+            fs::create_dir_all(&module_path)?;
+
+            let module_index_path = concat_path(&module_path, "index.html");
+            let module_content = generator.generate_module(self.pkg_name(), path.as_ref(), shader);
+
+            fs::write(module_index_path, module_content)?;
+        }
 
         Ok(())
     }

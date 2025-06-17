@@ -1,4 +1,4 @@
-use crate::impl_eq_name;
+use crate::{impl_eq_name, models::ComponentInfo, utils::html::to_html};
 
 use super::{import::{Import, RegisterImports}, types::{PathType, Primitive, Type, Vector}};
 
@@ -18,6 +18,29 @@ impl Function {
         return_ty: Option<Type>,
     ) -> Function {
         Function { docs, name, args, return_ty }
+    }
+
+    pub fn info(&self) -> ComponentInfo {
+        let summary = self.docs().map(|docs| {
+            let html = to_html(docs);
+            let parsed = scraper::Html::parse_fragment(&html);
+
+            let summary = parsed
+                .root_element()
+                .text()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .trim()
+                .to_string();
+
+            if summary.len() > ComponentInfo::SUMMARY_MAX_LENGTH {
+                format!("{}...", &summary[..ComponentInfo::SUMMARY_MAX_LENGTH])
+            } else {
+                summary
+            }
+        });
+
+        ComponentInfo::new(self.name.clone(), summary)
     }
     
     pub fn docs(&self) -> Option<&str> {

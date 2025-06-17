@@ -3,7 +3,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::impl_eq_name;
+use markdown::to_html;
+
+use crate::{impl_eq_name, models::ComponentInfo};
 
 #[derive(Debug, Clone)]
 pub struct Import {
@@ -25,6 +27,29 @@ impl Import {
             name,
             registered: false,
         }
+    }
+
+    pub fn info(&self) -> ComponentInfo {
+        let summary = self.docs().map(|docs| {
+            let html = to_html(docs);
+            let parsed = scraper::Html::parse_fragment(&html);
+
+            let summary = parsed
+                .root_element()
+                .text()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .trim()
+                .to_string();
+
+            if summary.len() > ComponentInfo::SUMMARY_MAX_LENGTH {
+                format!("{}...", &summary[..ComponentInfo::SUMMARY_MAX_LENGTH])
+            } else {
+                summary
+            }
+        });
+
+        ComponentInfo::new(self.name.clone(), summary)
     }
 
     pub fn register(&mut self, file_registry: &HashSet<PathBuf>) -> bool {
