@@ -9,14 +9,9 @@ fn main() -> anyhow::Result<()> {
         .filter_level(LevelFilter::Info)
         .init();
 
-    let document = Document::open("test_shaders")?;
+    let document = Document::open("test_shaders", "test_shaders")?;
     let registered = document.register();
-
-    if !std::fs::exists("/tmp/wgsldoc")? {
-        std::fs::create_dir("/tmp/wgsldoc")?;
-    }
-
-    registered.generate(&mut TeraGenerator, "/tmp/wgsldoc");
+    registered.generate(&mut TeraGenerator::new(), "/home/nutov2/wgsldoc")?;
     
     Ok(())
 }

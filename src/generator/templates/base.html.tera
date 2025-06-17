@@ -1,36 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light dark">
-    <link rel="stylesheet" href="{{ assets_subpath }}css/pico.classless.min.css">
-    <title>{{ page_title }} - WGSL documentation</title>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="color-scheme" content="light dark">
+   <link rel="stylesheet" href="{{ assets_subpath }}/css/pico.classless.min.css">
+   <title>{{ pkg_name }} - WGSL documentation</title>
 </head>
 <body>
-    <header>
-        <hgroup>
-            <h1>{{ page_title }}</h1>
-            <p>wgsldoc documentation</p>
-        </hgroup>
-        <nav>
-            <ul>
-                <li><a href="{{ assets_subpath }}index.html">Main page</a></li>
-                <li><a href="{{ assets_subpath }}modules.html">Modules</a></li>
-                {% if source %} 
-                    <li><a href="{{ source }}">Source</a></li>
-                {% else %}
-                    <li><span>Source</span></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </header>
-    <main>
-        {% block content %}{% endblock content %}
-    </main>
+   <header>
+      <hgroup>
+         <h1>{{ pkg_name }}</h1>
+         <p>wgsldoc documentation</p>
+      </hgroup>
+      <nav>
+         <ul>
+            <li><a href="{{ assets_subpath }}/index.html">Main page</a></li>
+            <li><a href="{{ assets_subpath }}/modules.html">Modules</a></li>
+            {% if source -%} 
+               <li><a href="{{ source }}">Source</a></li>
+            {%- else -%}
+               <li><span>Source</span></li>
+            {%- endif %}
+         </ul>
+      </nav>
+   </header>
+   <main>
+      {% block content %}{% endblock content %}
+   </main>
 
-    <footer>
-        <small>Built with <a href="https://github.com/konceptosociala/wgsldoc" target="_blank">wgsldoc</a></small>
-    </footer>
+   <footer>
+      <small>Built with <a href="https://github.com/konceptosociala/wgsldoc" target="_blank">wgsldoc</a></small>
+   </footer>
 </body>
 </html>

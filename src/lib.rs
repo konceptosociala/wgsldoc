@@ -10,6 +10,8 @@ use models::{
 use parser::WgslParser;
 use utils::error::Error;
 
+use crate::generator::assets;
+
 pub mod cli;
 pub mod generator;
 pub mod models;
@@ -17,13 +19,17 @@ pub mod parser;
 pub mod utils;
 
 pub struct Document {
+    pkg_name: String,
     readme: Option<String>,
     file_registry: HashSet<PathBuf>,
     shaders: Vec<Wgsl>
 }
 
 impl Document {
-    pub fn new(paths: &[impl AsRef<Path>]) -> Result<Document, Error> {
+    pub fn new(
+        pkg_name: impl Into<String>, 
+        paths: &[impl AsRef<Path>],
+    ) -> Result<Document, Error> {
         log::info!("Loading shaders...");
 
         let mut readme = None;
@@ -41,16 +47,24 @@ impl Document {
             }
         }
 
-        Ok(Document { readme, file_registry, shaders })
+        Ok(Document {
+            pkg_name: pkg_name.into(),
+            readme,
+            file_registry,
+            shaders,
+        })
     }
 
-    pub fn open(directory: impl AsRef<Path>) -> Result<Document, Error> {
+    pub fn open(
+        pkg_name: impl Into<String>,
+        directory: impl AsRef<Path>,
+    ) -> Result<Document, Error> {
         let paths = fs::read_dir(directory)?
             .filter_map(|e| e.ok())
             .map(|e| e.path())
             .collect::<Vec<_>>();
 
-        Document::new(&paths)
+        Document::new(pkg_name, &paths)
     }
 
     pub fn register(mut self) -> RegisteredDocument {
@@ -79,6 +93,7 @@ impl Document {
         }
 
         RegisteredDocument {
+            pkg_name: self.pkg_name,
             readme: self.readme,
             file_registry: self.file_registry,
             shaders: self.shaders,
@@ -99,6 +114,7 @@ impl Document {
 }
 
 pub struct RegisteredDocument {
+    pkg_name: String,
     readme: Option<String>,
     file_registry: HashSet<PathBuf>,
     shaders: Vec<Wgsl>
@@ -109,16 +125,41 @@ impl RegisteredDocument {
         &self, 
         generator: &mut impl Generator,
         path: impl AsRef<Path>,
-    ) {
+    ) -> Result<(), Error> {
         log::info!("Generating documentation...");
 
-        if !path.as_ref().is_dir() {
-            log::error!("Path `{}` is not a directory!", path.as_ref().display());
-            return;
-        }
+        // @/
+        fs::create_dir_all(path.as_ref())?;
 
-        let index_path = add_to_path(&path, "index.html");
-        let mut sas = add_to_path(&path, "index.html");
+        // @/css
+        let css_path = concat_path(&path, "css");
+        fs::create_dir_all(&css_path)?;
+
+        // @/css/pico.classless.min.css
+        let pico_css_path = concat_path(&css_path, "pico.classless.min.css");
+
+        // @/index.html
+        let index_path = concat_path(&path, "index.html");
+        let index_content = generator.generate_index(self.pkg_name(), path.as_ref(), self.readme());
+
+        // @/modules
+        let modules_path = concat_path(&path, "modules");
+        fs::create_dir_all(&modules_path)?;
+
+        // @/modules/index.html
+        let modules_index_path = concat_path(&modules_path, "index.html");
+        let modules_index_content = generator.generate_modules_index(self.pkg_name(), path.as_ref(), self.readme());
+
+        // Write to disk
+        fs::write(pico_css_path, assets::PICO_CSS)?;
+        fs::write(index_path, index_content)?;
+        fs::write(modules_index_path, modules_index_content)?;
+
+        Ok(())
+    }
+
+    pub fn pkg_name(&self) -> &str {
+        &self.pkg_name
     }
 
     pub fn shaders(&self) -> &[Wgsl] {
@@ -134,7 +175,7 @@ impl RegisteredDocument {
     }
 }
 
-fn add_to_path(
+fn concat_path(
     path: impl AsRef<Path>, 
     filename: &str,
 ) -> PathBuf {
