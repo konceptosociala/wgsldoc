@@ -1,5 +1,5 @@
 use std::{
-    collections::HashSet, fs, path::{Path, PathBuf}
+    collections::HashSet, path::{Path, PathBuf}
 };
 
 use generator::Generator;
@@ -9,6 +9,7 @@ use models::{
 };
 use parser::WgslParser;
 use utils::error::Error;
+use fs_err as fs;
 
 use crate::generator::assets;
 
@@ -81,7 +82,7 @@ impl Document {
         pkg_name: impl Into<String>,
         directory: impl AsRef<Path>,
     ) -> Result<Document, Error> {
-        let paths = fs::read_dir(directory)?
+        let paths = fs::read_dir(directory.as_ref())?
             .filter_map(|e| e.ok())
             .map(|e| e.path())
             .collect::<Vec<_>>();

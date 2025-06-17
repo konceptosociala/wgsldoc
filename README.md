@@ -2,9 +2,70 @@
 
 **wgsldoc** is a documentation generator for WGSL (WebGPU Shading Language) shader modules. It parses `.wgsl` files, extracts documentation comments, and generates a structured, searchable HTML site for easy browsing and reference.
 
+## Installation
+
+To install `wgsldoc`, you can use Cargo, the Rust package manager. Run the following command:
+
+```bash
+cargo install wgsldoc
+```
+
+## Usage
+After installation, you can run `wgsldoc` from the command line. 
+The following command will generate documentation for all WGSL files in the current directory, outputting the result
+to the `docs` directory:
+
+```bash
+wgsldoc
+```
+
+If you want to host your docs as a website, you should specify a base URL with the `-U` option:
+
+```bash
+wgsldoc -U https://example.com/docs
+```
+
+If you want to only generate the AST (Abstract Syntax Tree) and print it to stdout (or another stream) instead of generating full documentation, you can use the `-A` option:
+
+```bash
+wgsldoc -A > ast_output.txt
+```
+or for `stdout`
+```bash
+wgsldoc -A
+```
+
+More advanced usage:
+
+```bash
+Usage: wgsldoc [OPTIONS]
+
+Options:
+  -N, --name <NAME>
+          Name of the package to generate documentation for
+          
+  -D, --target-dir <TARGET_DIR>
+          Target directory for the generated documentation
+          
+  -U, --base-url <BASE_URL>
+          Base URL for future website. If specified, it will be used to generate links in the documentation. Otherwise, the links will use `target_dir` as the base URL
+
+  -A, --ast-only
+          Generate AST and print it to stdout instead of generating full documentation
+
+  -I, --input <FILES>
+          Input files to process. If not specified, the program will look for .wgsl files in the current directory
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+```
+
 ## Tasklist
 
-- [ ] CLI (clap)
+- [x] CLI
 - [ ] Parsing
     - [x] Modules
     - [x] Imports

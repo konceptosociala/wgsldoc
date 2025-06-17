@@ -10,6 +10,8 @@ repository = "https://github.com/konceptosociala/wgsldoc"
 
 [dependencies]
 anyhow = "1.0.96"
+clap = { version = "4.5.40", features = ["derive"] }
+fs-err = "=3.1.1"
 log = "0.4.27"
 markdown = "1.0.0"
 pest = { version = "2.7.15", features = ["pretty-print"] }
