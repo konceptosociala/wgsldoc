@@ -1,7 +1,7 @@
 # wgsldoc 📃🧑‍💻
 
-![![GitHub License](https://img.shields.io/github/license/konceptosociala/wgsldoc.svg)](LICENSE)
-![![Crates.io](https://img.shields.io/crates/v/wgsldoc.svg)](https://crates.io/crates/wgsldoc)
+[![GitHub License](https://img.shields.io/github/license/konceptosociala/wgsldoc.svg)](LICENSE)
+[![Crates.io](https://img.shields.io/crates/v/wgsldoc.svg)](https://crates.io/crates/wgsldoc)
 
 **wgsldoc** is a documentation generator for WGSL (WebGPU Shading Language) shader modules. It parses `.wgsl` files, extracts documentation comments, and generates a structured, searchable HTML site for easy browsing and reference.
 
