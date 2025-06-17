@@ -43,4 +43,8 @@ pub struct Args {
     /// If not specified, the program will look for .wgsl files in the current directory.
     #[arg(short = 'I', long = "input")]
     pub files: Vec<PathBuf>,
+
+    /// Show undocumented items in the documentation.
+    #[arg(short = 'W', long)]
+    pub show_undocumented: bool,
 }

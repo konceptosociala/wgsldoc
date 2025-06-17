@@ -1,5 +1,8 @@
 # wgsldoc 📃🧑‍💻
 
+![![GitHub License](https://img.shields.io/github/license/konceptosociala/wgsldoc.svg)](LICENSE)
+![![Crates.io](https://img.shields.io/crates/v/wgsldoc.svg)](https://crates.io/crates/wgsldoc)
+
 **wgsldoc** is a documentation generator for WGSL (WebGPU Shading Language) shader modules. It parses `.wgsl` files, extracts documentation comments, and generates a structured, searchable HTML site for easy browsing and reference.
 
 ## Installation
@@ -41,31 +44,22 @@ More advanced usage:
 Usage: wgsldoc [OPTIONS]
 
 Options:
-  -N, --name <NAME>
-          Name of the package to generate documentation for
-          
-  -D, --target-dir <TARGET_DIR>
-          Target directory for the generated documentation
-          
-  -U, --base-url <BASE_URL>
-          Base URL for future website. If specified, it will be used to generate links in the documentation. Otherwise, the links will use `target_dir` as the base URL
-
-  -A, --ast-only
-          Generate AST and print it to stdout instead of generating full documentation
-
-  -I, --input <FILES>
-          Input files to process. If not specified, the program will look for .wgsl files in the current directory
-
-  -h, --help
-          Print help (see a summary with '-h')
-
-  -V, --version
-          Print version
+  -N, --name <NAME>              Name of the package to generate documentation for
+  -D, --target-dir <TARGET_DIR>  Target directory for the generated documentation 
+  -U, --base-url <BASE_URL>      Base URL for future website. If specified, it will be used to generate links in the documentation. Otherwise, the links will use `target_dir` as the base URL
+  -A, --ast-only                 Generate AST and print it to stdout instead of generating full documentation
+  -I, --input <FILES>            Input files to process. If not specified, the program will look for .wgsl files in the current directory
+  -W, --show-undocumented        Show undocumented items in the documentation
+  -h, --help                     Print help (see more with '--help')
+  -V, --version                  Print version
 ```
 
 ## Tasklist
 
 - [x] CLI
+    - [x] AST-only mode
+    - [x] Documentation generation
+    - [x] Show undocumented items
 - [ ] Parsing
     - [x] Modules
     - [x] Imports
@@ -82,8 +76,9 @@ Options:
     - [ ] Search page
 - [ ] HTML Generation
     - [x] Main page
-    - [x] Modules
+    - [ ] Modules
         - [x] Index page
+        - [x] Module page
         - [ ] Import page
         - [ ] Function page
         - [ ] Structure page
@@ -94,4 +89,4 @@ Options:
         - [ ] Enums page
     - [ ] Source code
         - [ ] Index page
-        - [ ] Source pages
+        - [ ] Source page

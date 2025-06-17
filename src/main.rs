@@ -28,8 +28,51 @@ fn main() -> anyhow::Result<()> {
     }
 
     let registered = document.register();
+
+    if args.show_undocumented {
+        log::info!("Entering undocumented mode. This will log warnings for any undocumented items in the shaders.");
+
+        for shader in registered.shaders() {
+            if shader.global_docs.is_none() {
+                log::warn!("Shader '{}' has no documentation.", shader.module_name);
+            }
+
+            for function in &shader.functions {
+                if function.docs().is_none() {
+                    log::warn!("Function '{}' in shader '{}' has no documentation.", function.name(), shader.module_name);
+                }
+
+                for arg in function.args() {
+                    if arg.docs().is_none() {
+                        log::warn!("Argument '{}' in function '{}' of shader '{}' has no documentation.", arg.name(), function.name(), shader.module_name);
+                    }
+                }
+            }
+
+            for structure in &shader.structures {
+                if structure.docs().is_none() {
+                    log::warn!("Struct '{}' in shader '{}' has no documentation.", structure.name(), shader.module_name);
+                }
+
+                for field in structure.fields() {
+                    if field.docs().is_none() {
+                        log::warn!("Field '{}' in struct '{}' of shader '{}' has no documentation.", field.name(), structure.name(), shader.module_name);
+                    }
+                }
+            }
+
+            for import in &shader.imports {
+                if import.docs().is_none() {
+                    log::warn!("Import '{}' in shader '{}' has no documentation.", import.name(), shader.module_name);
+                }
+            }
+        }
+        return Ok(());
+    }
     
     if args.ast_only {
+        log::info!("AST-only mode enabled. Printing the AST to stdout.");
+
         for shader in registered.shaders() {
             println!("{} => {:#?}", shader.module_name, shader);
         }
