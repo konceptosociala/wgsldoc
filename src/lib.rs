@@ -172,6 +172,22 @@ impl RegisteredDocument {
         let pico_css_path = concat_path(&css_path, "pico.classless.min.css");
         fs::write(pico_css_path, assets::PICO_CSS)?;
 
+        // @/css/highlight.min.css
+        let highlight_css_path = concat_path(&css_path, "highlight.min.css");
+        fs::write(highlight_css_path, assets::HIGHLIGHT_CSS)?;
+
+        // @/js
+        let js_path = concat_path(&path, "js");
+        fs::create_dir_all(&js_path)?;
+
+        // @/js/highlight.min.js
+        let highlight_js_path = concat_path(&js_path, "highlight.min.js");
+        fs::write(highlight_js_path, assets::HIGHLIGHT_JS)?;
+
+        // @/js/wgsl.min.js
+        let wgsl_js_path = concat_path(&js_path, "wgsl.min.js");
+        fs::write(wgsl_js_path, assets::WGSL_JS)?;
+
         // @/favicon.png
         let favicon_path = concat_path(&path, "favicon.png");
         fs::write(favicon_path, self.favicon())?;
@@ -204,6 +220,17 @@ impl RegisteredDocument {
             let module_content = generator.generate_module(self.pkg_name(), path.as_ref(), shader);
 
             fs::write(module_index_path, module_content)?;
+        }
+
+        // @/source/<module_name>.html
+        let source_path = concat_path(&path, "source");
+        fs::create_dir_all(&source_path)?;
+
+        for shader in &self.shaders {
+            let source_file_path = concat_path(&source_path, &format!("{}.html", shader.module_name));
+            let source_content = generator.generate_source(self.pkg_name(), path.as_ref(), shader);
+
+            fs::write(source_file_path, source_content)?;
         }
 
         Ok(())

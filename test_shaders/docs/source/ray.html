@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="color-scheme" content="light dark">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/pico.classless.min.css">
+   <link rel="icon" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/favicon.png" type="image/png">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/highlight.min.css">
+   <title>test_shaders - WGSL documentation</title>
+</head>
+<body>
+   <header>
+      <hgroup>
+         <h1>test_shaders</h1>
+         <p>wgsldoc documentation</p>
+      </hgroup>
+      <nav>
+         <ul>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/index.html">Main page</a></li>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/index.html">Modules</a></li>
+            <li><span>Source</span></li>
+         </ul>
+      </nav>
+   </header>
+   <main>
+      
+   <h1>Source <code>ray</code></h1>
+   <hr>
+   <pre><code class="language-wgsl">&#x2F;&#x2F; ========= Ray =========
+
+&#x2F;&#x2F;&#x2F; Utils **import** with some ~~markdown~~
+&#x2F;&#x2F;&#x2F; &lt;br&gt;
+&#x2F;&#x2F;&#x2F; It is cool
+#import utils.wgsl as Utils
+
+struct Ray {
+    origin: vec3&lt;f32&gt;,
+    direction: vec3&lt;f32&gt;,
+}
+
+fn on_coords(
+    pos: vec2&lt;u32&gt;, 
+    camera: Utils::Camera,
+) -&gt; Ray {
+    let pixel_sample = camera.first_pixel
+        + (f32(pos.x) * camera.pixel_delta_u)
+        + (f32(pos.y) * camera.pixel_delta_v);
+
+    let ray_direction = pixel_sample - camera.center;
+
+    return Ray(camera.center, ray_direction);
+}
+
+fn on_coordsf(
+    pos: vec2&lt;f32&gt;, 
+    camera: Utils::Camera,
+) -&gt; Ray {
+    let pixel_sample = camera.first_pixel
+        + (f32(pos.x) * camera.pixel_delta_u)
+        + (f32(pos.y) * camera.pixel_delta_v);
+
+    let ray_direction = pixel_sample - camera.center;
+
+    return Ray(camera.center, ray_direction);
+}
+
+fn at(ray: Ray, t: f32) -&gt; vec3&lt;f32&gt; {
+    return ray.origin + t * ray.direction;
+}
+
+struct HitRecord {
+    p: vec3&lt;f32&gt;,
+    t: f32,
+    normal: vec3&lt;f32&gt;,
+    front_face: bool,
+    voxel_color: vec3&lt;f32&gt;,
+    voxel_mat: u32,
+    velocity: vec2&lt;f32&gt;,
+}
+
+fn hit_record_set_face_normal(record: ptr&lt;function, HitRecord&gt;, ray: Ray, outward_normal: vec3&lt;f32&gt;) {
+    (*record).front_face = dot(ray.direction, outward_normal) &lt; 0.0;
+    if (*record).front_face {
+        (*record).normal = outward_normal;
+    } else {
+        (*record).normal = -outward_normal;
+    }
+}</code></pre>
+
+   </main>
+
+   <footer>
+      <small>Built with <a href="https://github.com/konceptosociala/wgsldoc" target="_blank">wgsldoc</a></small>
+   </footer>
+
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/highlight.min.js"></script>
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/wgsl.min.js"></script>
+   <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{% extends "base.html.tera" %}
+{% block content %}
+   <h1>Source <code>{{ module_name }}</code></h1>
+   <hr>
+   <pre><code class="language-wgsl">{{ source_code | escape }}</code></pre>
+{% endblock content %}

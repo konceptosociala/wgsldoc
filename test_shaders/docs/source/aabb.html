@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="color-scheme" content="light dark">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/pico.classless.min.css">
+   <link rel="icon" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/favicon.png" type="image/png">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/highlight.min.css">
+   <title>test_shaders - WGSL documentation</title>
+</head>
+<body>
+   <header>
+      <hgroup>
+         <h1>test_shaders</h1>
+         <p>wgsldoc documentation</p>
+      </hgroup>
+      <nav>
+         <ul>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/index.html">Main page</a></li>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/index.html">Modules</a></li>
+            <li><span>Source</span></li>
+         </ul>
+      </nav>
+   </header>
+   <main>
+      
+   <h1>Source <code>aabb</code></h1>
+   <hr>
+   <pre><code class="language-wgsl">&#x2F;&#x2F;! # 📦 Axis-Aligned Bounding Box (AABB) Shader
+&#x2F;&#x2F;! Module for defining AABBs and performing ray-box intersection tests.
+&#x2F;&#x2F;! &lt;br&gt;
+&#x2F;&#x2F;! Depends on the `Ray` module (`ray.wgsl`) which provides ray structures and helpers.
+
+&#x2F;&#x2F;&#x2F; 📐 Defines an axis-aligned bounding box using minimum and maximum 3D coordinates.
+struct Aabb {
+    &#x2F;&#x2F;&#x2F; Minimum corner of the box (lowest x&#x2F;y&#x2F;z).
+    start: vec3&lt;f32&gt;,
+    &#x2F;&#x2F;&#x2F; Maximum corner of the box (highest x&#x2F;y&#x2F;z).
+    end: vec3&lt;f32&gt;,
+}
+
+&#x2F;&#x2F;&#x2F; 🔍 Tests whether a ray intersects a bounding box.
+&#x2F;&#x2F;&#x2F; &lt;br&gt;
+&#x2F;&#x2F;&#x2F; Updates the hit record with intersection details if a hit occurs.
+fn hit(
+    &#x2F;&#x2F;&#x2F; The axis-aligned bounding box to test against.
+    aabb: Aabb, 
+
+    &#x2F;&#x2F;&#x2F; The ray to test intersection with.
+    ray: Ray::Ray, 
+
+    &#x2F;&#x2F;&#x2F; The minimum t-value for valid intersections.
+    t_min: f32, 
+
+    &#x2F;&#x2F;&#x2F; The maximum t-value for valid intersections.
+    t_max: f32,
+
+    &#x2F;&#x2F;&#x2F; Pointer to a hit record that will be populated if the ray hits the box.
+    record: ptr&lt;function, Ray::HitRecord&gt;,
+) -&gt; bool {
+    var tmin = t_min;
+    var tmax = t_max;
+
+    for (var axis = 0; axis &lt; 3; axis++) {
+        let t1 = (aabb.start[axis] - ray.origin[axis]) &#x2F; ray.direction[axis];
+        let t2 = (aabb.end[axis] - ray.origin[axis]) &#x2F; ray.direction[axis];
+
+        let dmin = min(t1, t2);
+        let dmax = max(t1, t2);
+
+        tmin = max(dmin, tmin);
+        tmax = min(dmax, tmax);
+    }
+
+    if (tmax &lt; tmin) {
+        return false;
+    }
+
+    (*record).t = tmin;
+    (*record).p = Ray::at(ray, tmin);
+
+    let center = (aabb.end + aabb.start) * 0.5;
+    let direction = normalize((*record).p - center);
+
+    &#x2F;&#x2F; Estimate the normal based on the dominant direction from center
+    (*record).normal = vec3&lt;f32&gt;(1.0, 1.0, 1.0);
+
+    if abs(direction.x) &gt;= abs(direction.y) &amp;&amp; abs(direction.x) &gt;= abs(direction.z) {
+        (*record).normal = vec3&lt;f32&gt;(1.0, 0.0, 0.0);
+    }
+    if abs(direction.y) &gt;= abs(direction.x) &amp;&amp; abs(direction.y) &gt;= abs(direction.z) {
+        (*record).normal = vec3&lt;f32&gt;(0.0, 1.0, 0.0);
+    }
+    if abs(direction.z) &gt;= abs(direction.x) &amp;&amp; abs(direction.z) &gt;= abs(direction.y) {
+        (*record).normal = vec3&lt;f32&gt;(0.0, 0.0, 1.0);
+    }
+
+    &#x2F;&#x2F; Flip normal to face against ray direction
+    if dot(ray.direction, (*record).normal) &gt;= 0.0 {
+        (*record).normal = -(*record).normal;
+    }
+
+    return true;
+}
+</code></pre>
+
+   </main>
+
+   <footer>
+      <small>Built with <a href="https://github.com/konceptosociala/wgsldoc" target="_blank">wgsldoc</a></small>
+   </footer>
+
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/highlight.min.js"></script>
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/wgsl.min.js"></script>
+   <script>hljs.highlightAll();</script>
+</body>
+</html>

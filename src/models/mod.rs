@@ -27,6 +27,7 @@ impl ComponentInfo {
 #[derive(Debug)]
 pub struct Wgsl {
     pub module_name: String,
+    pub source_code: String,
     pub global_docs: Option<String>,
     pub imports: Vec<Import>,
     pub functions: Vec<Function>,

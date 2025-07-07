@@ -27,6 +27,7 @@ impl WgslParser {
         let shader_elements = WgslParserInner::parse(Rule::SHADER, shader)
             .map_err(|e| ParsingError::InputParsingError(Box::new(e)))?;
 
+        let source_code = shader.to_owned();
         let mut global_docs = None;
         let mut imports = vec![];
         let mut functions = vec![];
@@ -84,6 +85,7 @@ impl WgslParser {
 
         Ok(Wgsl {
             module_name: shader_name.to_string(),
+            source_code,
             global_docs,
             imports,
             functions,

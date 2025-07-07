@@ -6,7 +6,10 @@ use crate::{models::{function::Function, import::Import, structure::Structure, C
 
 pub mod assets {
     pub const PICO_CSS: &str = include_str!("static/pico.classless.min.css");
+    pub const HIGHLIGHT_CSS: &str = include_str!("static/highlight.min.css");
     pub const DEFAULT_FAVICON: &[u8] = include_bytes!("static/default_favicon.png");
+    pub const HIGHLIGHT_JS: &str = include_str!("static/highlight.min.js");
+    pub const WGSL_JS: &str = include_str!("static/wgsl.min.js");
 }
 
 pub trait Generator {
@@ -46,6 +49,13 @@ pub trait Generator {
         assets_subpath: impl AsRef<Path>,
         shader: &Wgsl,
     ) -> String;
+
+    fn generate_source(
+        &mut self,
+        pkg_name: &str,
+        assets_subpath: impl AsRef<Path>,
+        shader: &Wgsl,
+    ) -> String;
 }
 
 pub struct TeraGenerator {
@@ -58,12 +68,14 @@ impl TeraGenerator {
     pub const INDEX_TEMPLATE: &str = include_str!("templates/index.html.tera");
     pub const MODULES_TEMPLATE: &str = include_str!("templates/modules.html.tera");
     pub const MODULE_TEMPLATE: &str = include_str!("templates/module.html.tera");
+    pub const SOURCE_TEMPLATE: &str = include_str!("templates/source.html.tera");
 
-    pub const TEMPLATES: [(&str, &str); 4] = [
+    pub const TEMPLATES: [(&str, &str); 5] = [
         ("base.html.tera", Self::BASE_TEMPLATE),
         ("index.html.tera", Self::INDEX_TEMPLATE),
         ("modules.html.tera", Self::MODULES_TEMPLATE),
         ("module.html.tera", Self::MODULE_TEMPLATE),
+        ("source.html.tera", Self::SOURCE_TEMPLATE),
     ];
 
     pub fn new(base_url: Option<String>) -> Self {
@@ -181,6 +193,8 @@ impl Generator for TeraGenerator {
             );
         }
 
+        ctx.insert("source", &shader.module_name);
+
         ctx.insert("module", &shader.info_rich_text());
 
         let functions = shader.functions.iter()
@@ -194,5 +208,35 @@ impl Generator for TeraGenerator {
         ctx.insert("structures", &structures);
 
         self.tera.render("module.html.tera", &ctx).unwrap()
+    }
+
+    fn generate_source(
+        &mut self, 
+        pkg_name: &str,
+        assets_subpath: impl AsRef<Path>,
+        shader: &Wgsl,
+    ) -> String {
+        let mut ctx = tera::Context::new();
+        ctx.insert("pkg_name", pkg_name);
+
+        if let Some(base_url) = &self.base_url {
+            ctx.insert("assets_subpath", 
+                base_url
+                    .trim_end_matches('/')
+            );
+        } else {
+            ctx.insert("assets_subpath",
+                assets_subpath
+                    .as_ref()
+                    .to_str()
+                    .unwrap_or("")
+                    .trim_end_matches('/')
+            );
+        }
+
+        ctx.insert("module_name", &shader.module_name);
+        ctx.insert("source_code", &shader.source_code);
+
+        self.tera.render("source.html.tera", &ctx).unwrap()
     }
 }
