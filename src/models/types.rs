@@ -98,9 +98,9 @@ pub struct Vector {
 impl Display for Vector {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.dimension {
-            VectorDimension::D2 => write!(f, "vec2<{}>", self.ty),
-            VectorDimension::D3 => write!(f, "vec3<{}>", self.ty),
-            VectorDimension::D4 => write!(f, "vec4<{}>", self.ty),
+            VectorDimension::D2 => write!(f, "vec2&lt;{}&gt;", self.ty),
+            VectorDimension::D3 => write!(f, "vec3&lt;{}&gt;", self.ty),
+            VectorDimension::D4 => write!(f, "vec4&lt;{}&gt;", self.ty),
         }
     }
 }
