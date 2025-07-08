@@ -1,0 +1,21 @@
+{% macro render_type(type) %}
+   <code>
+      {# Set base type link or name #}
+      {% if type.is_this %}
+         {% set typename = "<a href='./struct." ~ type.name ~ ".html'>" ~ type.name ~ "</a>" %}
+      {% elif type.import %}
+         {% set typename = "<a href='../" ~ type.import ~ "/index.html'>" ~ type.module ~ "</a>::<a href='../" ~ type.import ~ "/struct." ~ type.name ~ ".html'>" ~ type.name ~ "</a>" %}
+      {% elif type.module %}
+         {% set typename = type.module ~ "::" ~ type.name %}
+      {% else %}
+         {% set typename = type.name %}
+      {% endif %}
+
+      {# Function pointer? #}
+      {% if type.is_function_pointer %}
+         ptr&lt;function, {{ typename | safe }}&gt;
+      {% else %}
+         {{ typename | safe }}
+      {% endif %}
+   </code>
+{% endmacro render_type %}

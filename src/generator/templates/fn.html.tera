@@ -1,0 +1,23 @@
+{% import "macros.tera" as macros %}
+{% extends "base.html.tera" %}
+{% block content %}
+   <h1>Function <code>{{ function_info.name }}</code></h1>
+   <hr>
+   {{ function_info.summary }}
+   <h2>Args:</h2>
+   <ul>
+      {% for arg in args %}
+         <li>
+            <b>{{ arg.name }}</b>: 
+            {{ macros::render_type(type=arg.ty) }}
+            {% if arg.docs %}
+               <br>
+               {{ arg.docs }}
+            {% endif %}
+         </li>
+      {% endfor %}
+   </ul>
+   {% if return_type %}
+      <h2>Return → {{ macros::render_type(type=return_type) }}</h2>
+   {% endif %}
+{% endblock content %}

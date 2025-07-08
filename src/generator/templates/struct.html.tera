@@ -1,0 +1,20 @@
+{% import "macros.tera" as macros %}
+{% extends "base.html.tera" %}
+{% block content %}
+   <h1>Structure <code>{{ structure_info.name }}</code></h1>
+   <hr>
+   {{ structure_info.summary }}
+   <h2>Fields:</h2>
+   <ul>
+      {% for field in fields %}
+         <li>
+            <b>{{ field.name }}</b>: 
+            {{ macros::render_type(type=field.ty) }}
+            {% if field.docs %}
+               <br>
+               {{ field.docs }}
+            {% endif %}
+         </li>
+      {% endfor %}
+   </ul>
+{% endblock content %}
