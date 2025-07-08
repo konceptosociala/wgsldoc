@@ -1,9 +1,8 @@
+use serde::Serialize;
+use crate::{models::types::RenderedType, utils::html::to_html};
 use function::Function;
 use import::Import;
-use serde::Serialize;
 use structure::Structure;
-
-use crate::{models::types::RenderedType, utils::html::to_html};
 
 pub mod structure;
 pub mod import;

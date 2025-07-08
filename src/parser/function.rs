@@ -1,7 +1,8 @@
 use pest::iterators::Pair;
-
-use crate::models::{function::{Arg, Function, FunctionType}, types::{PathType, Primitive, Type, Vector}};
-
+use crate::models::{
+    function::{Arg, Function, FunctionType},
+    types::{PathType, Primitive, Type, Vector},
+};
 use super::{error::ParsingError, FromPest, Rule};
 
 impl FromPest for Function {

@@ -1,7 +1,6 @@
-use error::ParsingError;
 use pest::{iterators::Pair, Parser};
 use pest_derive::Parser;
-
+use error::ParsingError;
 use crate::models::{function::Function, import::Import, structure::Structure, Wgsl};
 
 pub mod error;

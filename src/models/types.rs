@@ -1,7 +1,5 @@
 use std::fmt::Display;
-
 use serde::Serialize;
-
 use super::import::{Import, RegisterImports};
 
 #[derive(Debug)]

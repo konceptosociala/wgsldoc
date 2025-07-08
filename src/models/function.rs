@@ -1,6 +1,12 @@
-use crate::{impl_eq_name, models::{types::RenderedType, ComponentInfo, RenderedArgField}, utils::html::to_html};
-
-use super::{import::{Import, RegisterImports}, types::{PathType, Primitive, Type, Vector}};
+use crate::{
+    impl_eq_name,
+    models::{types::RenderedType, ComponentInfo, RenderedArgField},
+    utils::html::to_html,
+};
+use super::{
+    import::{Import, RegisterImports},
+    types::{PathType, Primitive, Type, Vector},
+};
 
 #[derive(Debug)]
 pub struct Function {

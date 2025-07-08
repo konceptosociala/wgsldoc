@@ -1,5 +1,4 @@
 use thiserror::Error;
-
 use super::{
     types::{InvalidPrimitiveType, InvalidVectorDimension}, 
     Rule,

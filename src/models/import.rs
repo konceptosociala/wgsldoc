@@ -1,10 +1,6 @@
-use std::{
-    collections::HashSet, 
-    path::{Path, PathBuf},
-};
-
+use std::collections::HashSet;
+use std::path::{Path, PathBuf};
 use serde::Serialize;
-
 use crate::{impl_eq_name, models::ComponentInfo, utils::html::to_html};
 
 #[derive(Debug, Clone, Serialize)]

@@ -1,16 +1,9 @@
-use std::{
-    collections::HashSet, path::{Path, PathBuf}
-};
-
+use std::{collections::HashSet, path::{Path, PathBuf}};
+use fs_err as fs;
 use generator::Generator;
-use models::{
-    import::RegisterImports, 
-    Wgsl,
-};
+use models::{import::RegisterImports, Wgsl};
 use parser::WgslParser;
 use utils::error::Error;
-use fs_err as fs;
-
 use crate::generator::assets;
 
 pub mod cli;

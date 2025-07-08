@@ -1,5 +1,4 @@
 use pest::iterators::Pair;
-
 use crate::models::{structure::{Field, Structure}, types::Type};
 use super::{error::ParsingError, FromPest, Rule};
 

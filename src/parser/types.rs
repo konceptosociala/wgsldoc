@@ -1,7 +1,6 @@
 use std::str::FromStr;
 use pest::iterators::Pair;
 use thiserror::Error;
-
 use crate::models::types::{PathType, Primitive, Type, Vector, VectorDimension};
 use super::{error::ParsingError, FromPest, Rule};
 

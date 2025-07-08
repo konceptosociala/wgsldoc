@@ -1,5 +1,4 @@
 use std::{env, path::PathBuf};
-
 use clap::Parser;
 
 fn default_name() -> String {
@@ -21,6 +20,7 @@ fn default_target() -> PathBuf {
     about = "Documentation generator for WGSL shaders", 
     long_about = "wgsldoc is a documentation generator for WGSL (WebGPU Shading Language) shader modules. It parses .wgsl files, extracts documentation comments, and generates a structured, searchable HTML site for easy browsing and reference.",
 )]
+/// Command-line arguments for the documentation generator.
 pub struct Args {
     /// Name of the package to generate documentation for.
     #[arg(short = 'N', long, default_value_t = default_name())]

@@ -1,7 +1,5 @@
 use std::path::Path;
-
 use tera::Tera;
-
 use crate::{
     models::{
         function::Function, 
@@ -12,15 +10,23 @@ use crate::{
     utils::html::to_html,
 };
 
+/// Assets module containing static files as constants.
 pub mod assets {
+    /// Pico.css stylesheet for minimal styling.
     pub const PICO_CSS: &str = include_str!("static/pico.classless.min.css");
+    /// Highlight.js CSS for code highlighting.
     pub const HIGHLIGHT_CSS: &str = include_str!("static/highlight.min.css");
+    /// Default favicon image in PNG format.
     pub const DEFAULT_FAVICON: &[u8] = include_bytes!("static/default_favicon.png");
+    /// Highlight.js JavaScript for code highlighting.
     pub const HIGHLIGHT_JS: &str = include_str!("static/highlight.min.js");
+    /// WGSL syntax highlighting JavaScript.
     pub const WGSL_JS: &str = include_str!("static/wgsl.min.js");
 }
 
+/// Trait for documentation generators.
 pub trait Generator {
+    /// Generates documentation for a function.
     fn generate_fn(
         &mut self, 
         pkg_name: &str,
@@ -29,6 +35,7 @@ pub trait Generator {
         imports: &[Import],
     ) -> String;
 
+    /// Generates documentation for a structure.
     fn generate_struct(
         &mut self, 
         pkg_name: &str,
@@ -37,6 +44,7 @@ pub trait Generator {
         imports: &[Import],
     ) -> String;
 
+    /// Generates the index page documentation.
     fn generate_index(
         &mut self, 
         pkg_name: &str,
@@ -44,6 +52,7 @@ pub trait Generator {
         readme: Option<&str>,
     ) -> String;
 
+    /// Generates the modules index documentation.
     fn generate_modules_index(
         &mut self, 
         pkg_name: &str,
@@ -51,6 +60,7 @@ pub trait Generator {
         modules: &[ComponentInfo],
     ) -> String;
 
+    /// Generates documentation for a module.
     fn generate_module(
         &mut self, 
         pkg_name: &str,
@@ -58,6 +68,7 @@ pub trait Generator {
         shader: &Wgsl,
     ) -> String;
 
+    /// Generates the source code documentation for a module.
     fn generate_source(
         &mut self,
         pkg_name: &str,
@@ -66,21 +77,31 @@ pub trait Generator {
     ) -> String;
 }
 
+/// Generator implementation using Tera templates.
 pub struct TeraGenerator {
     tera: Tera,
     base_url: Option<String>,
 }
 
 impl TeraGenerator {
+    /// Macros template source.
     pub const MACROS: &str = include_str!("templates/macros.tera");
+    /// Base HTML template source.
     pub const BASE_TEMPLATE: &str = include_str!("templates/base.html.tera");
+    /// Index HTML template source.
     pub const INDEX_TEMPLATE: &str = include_str!("templates/index.html.tera");
+    /// Modules HTML template source.
     pub const MODULES_TEMPLATE: &str = include_str!("templates/modules.html.tera");
+    /// Module HTML template source.
     pub const MODULE_TEMPLATE: &str = include_str!("templates/module.html.tera");
+    /// Source HTML template source.
     pub const SOURCE_TEMPLATE: &str = include_str!("templates/source.html.tera");
+    /// Function HTML template source.
     pub const FN_TEMPLATE: &str = include_str!("templates/fn.html.tera");
+    /// Structure HTML template source.
     pub const STRUCT_TEMPLATE: &str = include_str!("templates/struct.html.tera");
 
+    /// Array of all template names and their sources.
     pub const TEMPLATES: [(&str, &str); 8] = [
         ("macros.tera", Self::MACROS),
         ("base.html.tera", Self::BASE_TEMPLATE),
@@ -92,6 +113,7 @@ impl TeraGenerator {
         ("struct.html.tera", Self::STRUCT_TEMPLATE),
     ];
 
+    /// Creates a new TeraGenerator with an optional base URL.
     pub fn new(base_url: Option<String>) -> Self {
         let mut tera = Tera::default();
         tera.add_raw_templates(Self::TEMPLATES).unwrap();
