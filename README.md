@@ -54,7 +54,7 @@ Options:
   -V, --version                  Print version
 ```
 
-## Tasklist
+## Features
 
 - [x] CLI
     - [x] AST-only mode
