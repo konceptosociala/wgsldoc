@@ -29,8 +29,26 @@ impl Import {
         }
     }
 
-    pub fn info(&self) -> ComponentInfo {
-        let summary = self.docs().map(|docs| {
+    pub fn module_name(&self) -> &str {
+        self.path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or_default()
+    }
+
+    /// Returns a [`ComponentInfo`] containing a summary of the import documentation, 
+    /// with the summary extracted from the rendered Markdown as HTML.
+    pub fn info_rich_text(&self) -> ComponentInfo {
+        let summary = self.docs.as_deref().map(to_html);
+
+        ComponentInfo::new(self.name.clone(), summary)
+    }
+
+    /// Returns a [`ComponentInfo`] containing a summary of the import documentation, 
+    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated 
+    /// to `ComponentInfo::SUMMARY_MAX_LENGTH` characters if necessary.
+    pub fn info_plain_text(&self) -> ComponentInfo {
+        let summary = self.docs.as_deref().map(|docs| {
             let html = to_html(docs);
             let parsed = scraper::Html::parse_fragment(&html);
 

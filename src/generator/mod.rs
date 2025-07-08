@@ -2,7 +2,15 @@ use std::path::Path;
 
 use tera::Tera;
 
-use crate::{models::{function::Function, import::Import, structure::Structure, ComponentInfo, Wgsl}, utils::html::to_html};
+use crate::{
+    models::{
+        function::Function, 
+        import::Import, 
+        structure::Structure, 
+        ComponentInfo, Wgsl,
+    }, 
+    utils::html::to_html,
+};
 
 pub mod assets {
     pub const PICO_CSS: &str = include_str!("static/pico.classless.min.css");
@@ -64,18 +72,22 @@ pub struct TeraGenerator {
 }
 
 impl TeraGenerator {
+    pub const MACROS: &str = include_str!("templates/macros.tera");
     pub const BASE_TEMPLATE: &str = include_str!("templates/base.html.tera");
     pub const INDEX_TEMPLATE: &str = include_str!("templates/index.html.tera");
     pub const MODULES_TEMPLATE: &str = include_str!("templates/modules.html.tera");
     pub const MODULE_TEMPLATE: &str = include_str!("templates/module.html.tera");
     pub const SOURCE_TEMPLATE: &str = include_str!("templates/source.html.tera");
+    pub const FN_TEMPLATE: &str = include_str!("templates/fn.html.tera");
 
-    pub const TEMPLATES: [(&str, &str); 5] = [
+    pub const TEMPLATES: [(&str, &str); 7] = [
+        ("macros.tera", Self::MACROS),
         ("base.html.tera", Self::BASE_TEMPLATE),
         ("index.html.tera", Self::INDEX_TEMPLATE),
         ("modules.html.tera", Self::MODULES_TEMPLATE),
         ("module.html.tera", Self::MODULE_TEMPLATE),
         ("source.html.tera", Self::SOURCE_TEMPLATE),
+        ("fn.html.tera", Self::FN_TEMPLATE),
     ];
 
     pub fn new(base_url: Option<String>) -> Self {
@@ -89,13 +101,36 @@ impl TeraGenerator {
 impl Generator for TeraGenerator {
     fn generate_fn(
         &mut self, 
-        _pkg_name: &str,
-        _assets_subpath: impl AsRef<Path>,
-        _function: &Function, 
-        _imports: &[Import],
+        pkg_name: &str,
+        assets_subpath: impl AsRef<Path>,
+        function: &Function, 
+        imports: &[Import],
     ) -> String {
-        // TODO: Implement function generation logic
-        String::from("generate_fn is not implemented yet")
+        let mut ctx = tera::Context::new();
+        ctx.insert("pkg_name", pkg_name);
+
+        if let Some(base_url) = &self.base_url {
+            ctx.insert("assets_subpath", 
+                base_url
+                    .trim_end_matches('/')
+            );
+        } else {
+            ctx.insert("assets_subpath",
+                assets_subpath
+                    .as_ref()
+                    .to_str()
+                    .unwrap_or("")
+                    .trim_end_matches('/')
+            );
+        }
+
+        ctx.insert("function_info", &function.info_rich_text());
+        ctx.insert("args", &function.rendered_args(imports));
+        ctx.insert("return_type", &function.return_type()
+            .map(|ty| ty.rendered_type(imports, false))
+        );
+
+        self.tera.render("fn.html.tera", &ctx).unwrap()
     }
 
     fn generate_struct(
@@ -198,12 +233,12 @@ impl Generator for TeraGenerator {
         ctx.insert("module", &shader.info_rich_text());
 
         let functions = shader.functions.iter()
-            .map(|f| f.info())
+            .map(|f| f.info_plain_text())
             .collect::<Vec<_>>();
         ctx.insert("functions", &functions);
 
         let structures = shader.structures.iter()
-            .map(|s| s.info())
+            .map(|s| s.info_plain_text())
             .collect::<Vec<_>>();
         ctx.insert("structures", &structures);
 

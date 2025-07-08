@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="color-scheme" content="light dark">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/pico.classless.min.css">
+   <link rel="icon" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/favicon.png" type="image/png">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/highlight.min.css">
+   <title>test_shaders - WGSL documentation</title>
+</head>
+<body>
+   <header>
+      <hgroup>
+         <h1>test_shaders</h1>
+         <p>wgsldoc documentation</p>
+      </hgroup>
+      <nav>
+         <ul>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/index.html">Main page</a></li>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/index.html">Modules</a></li>
+            <li><span>Source</span></li>
+         </ul>
+      </nav>
+   </header>
+   <main>
+      
+   <h1>Function <code>hit</code></h1>
+   <hr>
+   <p>🔍 Tests whether a ray intersects a bounding box.
+<br>
+Updates the hit record with intersection details if a hit occurs.</p>
+   <h2>Args:</h2>
+   <ul>
+      
+         <li>
+            <b>aabb</b>: 
+            
+   <code>
+      
+      
+         
+      
+
+      
+      
+         <a href='./struct.Aabb.html'>Aabb</a>
+      
+   </code>
+
+            
+               <br>
+               <p>The axis-aligned bounding box to test against.</p>
+            
+         </li>
+      
+         <li>
+            <b>ray</b>: 
+            
+   <code>
+      
+      
+         
+      
+
+      
+      
+         <a href='../ray/index.html'>Ray</a>::<a href='../ray/struct.Ray.html'>Ray</a>
+      
+   </code>
+
+            
+               <br>
+               <p>The ray to test intersection with.</p>
+            
+         </li>
+      
+         <li>
+            <b>t_min</b>: 
+            
+   <code>
+      
+      
+         
+      
+
+      
+      
+         f32
+      
+   </code>
+
+            
+               <br>
+               <p>The minimum t-value for valid intersections.</p>
+            
+         </li>
+      
+         <li>
+            <b>t_max</b>: 
+            
+   <code>
+      
+      
+         
+      
+
+      
+      
+         f32
+      
+   </code>
+
+            
+               <br>
+               <p>The maximum t-value for valid intersections.</p>
+            
+         </li>
+      
+         <li>
+            <b>record</b>: 
+            
+   <code>
+      
+      
+         
+      
+
+      
+      
+         ptr&lt;function, <a href='../ray/index.html'>Ray</a>::<a href='../ray/struct.HitRecord.html'>HitRecord</a>&gt;
+      
+   </code>
+
+            
+               <br>
+               <p>Pointer to a hit record that will be populated if the ray hits the box.</p>
+            
+         </li>
+      
+   </ul>
+   
+      <h2>Return → 
+   <code>
+      
+      
+         
+      
+
+      
+      
+         bool
+      
+   </code>
+</h2>
+   
+
+   </main>
+
+   <footer>
+      <small>Built with <a href="https://github.com/konceptosociala/wgsldoc" target="_blank">wgsldoc</a></small>
+   </footer>
+
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/highlight.min.js"></script>
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/wgsl.min.js"></script>
+   <script>hljs.highlightAll();</script>
+</body>
+</html>

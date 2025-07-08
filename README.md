@@ -80,13 +80,11 @@ Options:
         - [x] Index page
         - [x] Module page
         - [ ] Import page
-        - [ ] Function page
+        - [x] Function page
         - [ ] Structure page
         - [ ] Entry point page
         - [ ] Built-in import page
         - [ ] Constants page
         - [ ] Bindings page
         - [ ] Enums page
-    - [ ] Source code
-        - [ ] Index page
-        - [ ] Source page
+    - [x] Source code

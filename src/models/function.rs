@@ -1,4 +1,6 @@
-use crate::{impl_eq_name, models::ComponentInfo, utils::html::to_html};
+use serde::Serialize;
+
+use crate::{impl_eq_name, models::{types::RenderedType, ComponentInfo}, utils::html::to_html};
 
 use super::{import::{Import, RegisterImports}, types::{PathType, Primitive, Type, Vector}};
 
@@ -20,8 +22,45 @@ impl Function {
         Function { docs, name, args, return_ty }
     }
 
-    pub fn info(&self) -> ComponentInfo {
-        let summary = self.docs().map(|docs| {
+    pub fn rendered_args(&self, imports: &[Import]) -> Vec<RenderedArg> {
+        self.args()
+            .iter()
+            .map(|arg| {
+                let ty = match arg.argument_type() {
+                    FunctionType::Primitive(p) => RenderedType {
+                        name: p.to_string(),
+                        ..Default::default()
+                    },
+                    FunctionType::Vector(v) => RenderedType {
+                        name: v.to_string(),
+                        ..Default::default()
+                    },
+                    FunctionType::Path(path) => Type::Path(path.clone()).rendered_type(imports, false),
+                    FunctionType::FunctionPointer(inner_ty) => inner_ty.rendered_type(imports, true),
+                };
+
+                RenderedArg {
+                    docs: arg.docs().map(to_html),
+                    name: arg.name().to_string(),
+                    ty,
+                }
+            })
+            .collect()
+    }
+
+    /// Returns a [`ComponentInfo`] containing a summary of the function documentation, 
+    /// with the summary extracted from the rendered Markdown as HTML.
+    pub fn info_rich_text(&self) -> ComponentInfo {
+        let summary = self.docs.as_deref().map(to_html);
+
+        ComponentInfo::new(self.name.clone(), summary)
+    }
+
+    /// Returns a [`ComponentInfo`] containing a summary of the function documentation, 
+    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated 
+    /// to `ComponentInfo::SUMMARY_MAX_LENGTH` characters if necessary.
+    pub fn info_plain_text(&self) -> ComponentInfo {
+        let summary = self.docs.as_deref().map(|docs| {
             let html = to_html(docs);
             let parsed = scraper::Html::parse_fragment(&html);
 
@@ -89,6 +128,13 @@ pub struct Arg {
     docs: Option<String>,
     name: String,
     ty: FunctionType,
+}
+
+#[derive(Serialize, Default, Debug)]
+pub struct RenderedArg {
+    docs: Option<String>,
+    name: String,
+    ty: RenderedType,
 }
 
 impl Arg {

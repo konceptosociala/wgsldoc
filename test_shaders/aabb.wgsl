@@ -3,6 +3,8 @@
 //! <br>
 //! Depends on the `Ray` module (`ray.wgsl`) which provides ray structures and helpers.
 
+#import ray.wgsl as Ray
+
 /// 📐 Defines an axis-aligned bounding box using minimum and maximum 3D coordinates.
 struct Aabb {
     /// Minimum corner of the box (lowest x/y/z).

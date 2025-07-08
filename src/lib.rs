@@ -220,6 +220,14 @@ impl RegisteredDocument {
             let module_content = generator.generate_module(self.pkg_name(), path.as_ref(), shader);
 
             fs::write(module_index_path, module_content)?;
+
+            // @/modules/<module_name>/fn.<function_name>.html
+            for function in &shader.functions {
+                let function_path = concat_path(&module_path, &format!("fn.{}.html", function.name()));
+                let function_content = generator.generate_fn(self.pkg_name(), path.as_ref(), function, &shader.imports);
+
+                fs::write(function_path, function_content)?;
+            }
         }
 
         // @/source/<module_name>.html
