@@ -6,6 +6,7 @@ description = "Documentation generator for WGSL shaders"
 keywords = ["wgsl", "docs", "documentation"]
 license = "Unlicense"
 readme = "README.md"
+documentation = "https://docs.rs/wgsldoc"
 repository = "https://github.com/konceptosociala/wgsldoc"
 
 [dependencies]
