@@ -228,6 +228,14 @@ impl RegisteredDocument {
 
                 fs::write(function_path, function_content)?;
             }
+
+            // @/modules/<module_name>/struct.<structure_name>.html
+            for structure in &shader.structures {
+                let structure_path = concat_path(&module_path, &format!("struct.{}.html", structure.name()));
+                let structure_content = generator.generate_struct(self.pkg_name(), path.as_ref(), structure, &shader.imports);
+
+                fs::write(structure_path, structure_content)?;
+            }
         }
 
         // @/source/<module_name>.html

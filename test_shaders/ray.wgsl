@@ -1,6 +1,6 @@
 // ========= Ray =========
 
-/// Utils **import** with some ~~markdown~~
+/// Utils **import** with some _markdown_
 /// <br>
 /// It is cool
 #import utils.wgsl as Utils

@@ -1,6 +1,4 @@
-use serde::Serialize;
-
-use crate::{impl_eq_name, models::{types::RenderedType, ComponentInfo}, utils::html::to_html};
+use crate::{impl_eq_name, models::{types::RenderedType, ComponentInfo, RenderedArgField}, utils::html::to_html};
 
 use super::{import::{Import, RegisterImports}, types::{PathType, Primitive, Type, Vector}};
 
@@ -22,7 +20,7 @@ impl Function {
         Function { docs, name, args, return_ty }
     }
 
-    pub fn rendered_args(&self, imports: &[Import]) -> Vec<RenderedArg> {
+    pub fn rendered_args(&self, imports: &[Import]) -> Vec<RenderedArgField> {
         self.args()
             .iter()
             .map(|arg| {
@@ -39,7 +37,7 @@ impl Function {
                     FunctionType::FunctionPointer(inner_ty) => inner_ty.rendered_type(imports, true),
                 };
 
-                RenderedArg {
+                RenderedArgField {
                     docs: arg.docs().map(to_html),
                     name: arg.name().to_string(),
                     ty,
@@ -128,13 +126,6 @@ pub struct Arg {
     docs: Option<String>,
     name: String,
     ty: FunctionType,
-}
-
-#[derive(Serialize, Default, Debug)]
-pub struct RenderedArg {
-    docs: Option<String>,
-    name: String,
-    ty: RenderedType,
 }
 
 impl Arg {

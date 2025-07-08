@@ -3,14 +3,15 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use markdown::to_html;
+use serde::Serialize;
 
-use crate::{impl_eq_name, models::ComponentInfo};
+use crate::{impl_eq_name, models::ComponentInfo, utils::html::to_html};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Import {
     docs: Option<String>,
     path: PathBuf,
+    module_name: String,
     name: String,
     registered: bool,
 }
@@ -22,7 +23,12 @@ impl Import {
         name: String
     ) -> Import {
         Import {
-            docs,
+            docs: docs.map(|s| to_html(&s)),
+            module_name: path
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or_default()
+                .to_string(),
             path,
             name,
             registered: false,
@@ -30,10 +36,7 @@ impl Import {
     }
 
     pub fn module_name(&self) -> &str {
-        self.path
-            .file_stem()
-            .and_then(|s| s.to_str())
-            .unwrap_or_default()
+        &self.module_name
     }
 
     /// Returns a [`ComponentInfo`] containing a summary of the import documentation, 

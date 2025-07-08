@@ -70,21 +70,21 @@ Options:
     - [ ] Constants
     - [ ] Bindings
     - [ ] Enums
-- [ ] Documentation
-- [ ] Search functionality
-    - [ ] Search index generation
-    - [ ] Search page
 - [ ] HTML Generation
     - [x] Main page
     - [ ] Modules
         - [x] Index page
         - [x] Module page
-        - [ ] Import page
+        - [x] Import page
         - [x] Function page
-        - [ ] Structure page
+        - [x] Structure page
         - [ ] Entry point page
         - [ ] Built-in import page
         - [ ] Constants page
         - [ ] Bindings page
         - [ ] Enums page
     - [x] Source code
+- [ ] Documentation
+- [ ] Search functionality
+    - [ ] Search index generation
+    - [ ] Search page

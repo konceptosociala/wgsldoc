@@ -3,7 +3,7 @@ use import::Import;
 use serde::Serialize;
 use structure::Structure;
 
-use crate::utils::html::to_html;
+use crate::{models::types::RenderedType, utils::html::to_html};
 
 pub mod structure;
 pub mod import;
@@ -73,4 +73,11 @@ impl Wgsl {
 
         ComponentInfo::new(self.module_name.clone(), summary)
     }
+}
+
+#[derive(Serialize, Default, Debug)]
+pub struct RenderedArgField {
+    docs: Option<String>,
+    name: String,
+    ty: RenderedType,
 }

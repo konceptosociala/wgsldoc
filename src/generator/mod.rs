@@ -79,8 +79,9 @@ impl TeraGenerator {
     pub const MODULE_TEMPLATE: &str = include_str!("templates/module.html.tera");
     pub const SOURCE_TEMPLATE: &str = include_str!("templates/source.html.tera");
     pub const FN_TEMPLATE: &str = include_str!("templates/fn.html.tera");
+    pub const STRUCT_TEMPLATE: &str = include_str!("templates/struct.html.tera");
 
-    pub const TEMPLATES: [(&str, &str); 7] = [
+    pub const TEMPLATES: [(&str, &str); 8] = [
         ("macros.tera", Self::MACROS),
         ("base.html.tera", Self::BASE_TEMPLATE),
         ("index.html.tera", Self::INDEX_TEMPLATE),
@@ -88,6 +89,7 @@ impl TeraGenerator {
         ("module.html.tera", Self::MODULE_TEMPLATE),
         ("source.html.tera", Self::SOURCE_TEMPLATE),
         ("fn.html.tera", Self::FN_TEMPLATE),
+        ("struct.html.tera", Self::STRUCT_TEMPLATE),
     ];
 
     pub fn new(base_url: Option<String>) -> Self {
@@ -135,13 +137,33 @@ impl Generator for TeraGenerator {
 
     fn generate_struct(
         &mut self, 
-        _pkg_name: &str,
-        _assets_subpath: impl AsRef<Path>,
-        _structure: &Structure, 
-        _imports: &[Import],
+        pkg_name: &str,
+        assets_subpath: impl AsRef<Path>,
+        structure: &Structure, 
+        imports: &[Import],
     ) -> String {
-        // TODO: Implement structure generation logic
-        String::from("generate_struct is not implemented yet")
+        let mut ctx = tera::Context::new();
+        ctx.insert("pkg_name", pkg_name);
+
+        if let Some(base_url) = &self.base_url {
+            ctx.insert("assets_subpath", 
+                base_url
+                    .trim_end_matches('/')
+            );
+        } else {
+            ctx.insert("assets_subpath",
+                assets_subpath
+                    .as_ref()
+                    .to_str()
+                    .unwrap_or("")
+                    .trim_end_matches('/')
+            );
+        }
+
+        ctx.insert("structure_info", &structure.info_rich_text());
+        ctx.insert("fields", &structure.rendered_fields(imports));
+
+        self.tera.render("struct.html.tera", &ctx).unwrap()
     }
 
     fn generate_index(
@@ -229,8 +251,8 @@ impl Generator for TeraGenerator {
         }
 
         ctx.insert("source", &shader.module_name);
-
         ctx.insert("module", &shader.info_rich_text());
+        ctx.insert("imports", &shader.imports);
 
         let functions = shader.functions.iter()
             .map(|f| f.info_plain_text())

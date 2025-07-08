@@ -1,4 +1,4 @@
-use crate::{impl_eq_name, models::ComponentInfo, utils::html::to_html};
+use crate::{impl_eq_name, models::{types::RenderedType, ComponentInfo, RenderedArgField}, utils::html::to_html};
 
 use super::{import::{Import, RegisterImports}, types::Type};
 
@@ -16,6 +16,31 @@ impl Structure {
         fields: Vec<Field>,
     ) -> Structure {
         Structure { docs, name, fields }
+    }
+
+    pub fn rendered_fields(&self, imports: &[Import]) -> Vec<RenderedArgField> {
+        self.fields()
+            .iter()
+            .map(|field| {
+                let ty = match field.field_type() {
+                    Type::Primitive(p) => RenderedType {
+                        name: p.to_string(),
+                        ..Default::default()
+                    },
+                    Type::Vector(v) => RenderedType {
+                        name: v.to_string(),
+                        ..Default::default()
+                    },
+                    Type::Path(path) => Type::Path(path.clone()).rendered_type(imports, false),
+                };
+
+                RenderedArgField {
+                    docs: field.docs().map(to_html),
+                    name: field.name().to_string(),
+                    ty,
+                }
+            })
+            .collect()
     }
 
     /// Returns a [`ComponentInfo`] containing a summary of the structure documentation, 

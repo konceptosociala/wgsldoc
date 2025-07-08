@@ -3,6 +3,25 @@
    <h1>Module <code>{{ module.name }}</code></h1>
    <hr>
    {{ module.summary }}
+   {% if imports %}
+      <h2>Imports</h2>
+      <hr>
+      {% for imp in imports %}
+         <li>
+            <i>{{ imp.path }}</i> as <code>
+               {% if imp.registered %}
+                  <a href="{{ assets_subpath }}/modules/{{ imp.module_name }}/index.html">{{ imp.name }}</a>
+               {% else %}
+                  {{ imp.name }}
+               {% endif %}
+            </code>
+            {% if imp.docs %}
+               <br>
+               {{ imp.docs }}
+            {% endif %}
+         </li>
+      {% endfor %}
+   {% endif %}
    {% if functions %}
       <h2>Functions</h2>
       <hr>
@@ -14,7 +33,6 @@
          {% endif %}
       {% endfor %}
    {% endif %}
-   <br>
    {% if structures %}
       <h2>Structures</h2>
       <hr>
