@@ -106,6 +106,16 @@ impl Document {
                 function.register_imports(&shader.imports);
                 function.register_same_module_types(&same_module_types);
             }
+
+            for binding in &mut shader.bindings {
+                binding.register_imports(&shader.imports);
+                binding.register_same_module_types(&same_module_types);
+            }
+
+            for constant in &mut shader.constants {
+                constant.register_imports(&shader.imports);
+                constant.register_same_module_types(&same_module_types);
+            }
         }
 
         RegisteredDocument {

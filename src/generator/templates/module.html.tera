@@ -23,6 +23,46 @@
          </li>
       {% endfor %}
    {% endif %}
+   {% if bindings %}
+      <h2>Bindings</h2>
+      <hr>
+      <table>
+         <thead>
+            <tr>
+               <th>Group</th>
+               <th>Binding</th>
+               <th>Name</th>
+               <th>Type</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for binding in bindings %}
+               <tr>
+                  <td>
+                     <strong>{{ binding.attr_group }}</strong>
+                  </td>
+                  <td>
+                     <strong>{{ binding.attr_binding }}</strong>
+                  </td>
+                  <td>
+                     <strong>{{ binding.name }}</strong>
+                     {% if binding.docs %}
+                        <br>
+                        <small>{{ binding.docs }}</small>
+                     {% endif %}
+                  </td>
+                  <td>
+                     {% if binding.attr_binding %}
+                        {{ macros::render_type(type=binding.ty) }}
+                     {% else %}
+                        (infer)
+                     {% endif %}
+                  </td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+   {% endif %}
    {% if constants %}
       <h2>Constants</h2>
       <hr>

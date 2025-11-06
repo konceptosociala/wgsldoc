@@ -1,17 +1,24 @@
 #import bevy_core_pipeline::fullscreen_vertex_shader::FullscreenVertexOutput
 #import bevy_render::view::View;
+#import aabb.wgsl as Aabb;
 
+/// Screen color texture containing the rendered scene
 @group(0) @binding(0) var screen_texture: texture_2d<f32>;
 @group(0) @binding(1) var screen_sampler: sampler;
+/// Normal vectors texture in view space for lighting calculations
 @group(0) @binding(2) var normals_texture: texture_2d<f32>;
 @group(0) @binding(3) var normals_sampler: sampler;
+/// Depth buffer texture storing scene depth information
 @group(0) @binding(4) var depth_texture: texture_2d<f32>;
 @group(0) @binding(5) var depth_sampler: sampler;
 @group(0) @binding(6) var world_volume: texture_3d<u32>;
+/// Jitter values for temporal anti-aliasing and sampling
 @group(0) @binding(7) var<uniform> jitter: Jitter;
 @group(0) @binding(8) var<uniform> view: View;
+/// Blue noise texture for high-quality stochastic sampling
 @group(0) @binding(9) var blue_noise: texture_2d<f32>;
 @group(0) @binding(10) var blue_noise_sampler: sampler;
+@group(0) @binding(11) var<uniform> aabb: Aabb::Aabb;
 
 struct DebugOptionsRaw {
     mode: u32,

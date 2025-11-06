@@ -1,7 +1,7 @@
 use pest::{iterators::Pair, Parser};
 use pest_derive::Parser;
 use error::ParsingError;
-use crate::models::{Wgsl, constant::Constant, function::Function, import::Import, structure::Structure};
+use crate::models::{Wgsl, binding::Binding, constant::Constant, function::Function, import::Import, structure::Structure};
 
 pub mod error;
 pub mod function;
@@ -9,6 +9,7 @@ pub mod import;
 pub mod structure;
 pub mod types;
 pub mod constant;
+pub mod binding;
 
 pub trait FromPest {
     fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
@@ -33,9 +34,19 @@ impl WgslParser {
         let mut functions = vec![];
         let mut structures = vec![];
         let mut constants = vec![];
+        let mut bindings = vec![];
 
         for shader_element in shader_elements {
             match shader_element.as_rule() {
+                Rule::RESOURCE_BINDING => {
+                    let binding = Binding::from_pest(shader_element)?;
+
+                    if bindings.contains(&binding) {
+                        log::warn!("Binding with name `{}` already exists!", binding.name());
+                    } else {
+                        bindings.push(binding);
+                    }
+                },
                 Rule::STRUCTURE => {
                     let structure = Structure::from_pest(shader_element)?;
 
@@ -100,6 +111,7 @@ impl WgslParser {
             functions,
             structures,
             constants,
+            bindings,
         })
     }
 }

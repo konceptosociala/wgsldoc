@@ -1,9 +1,10 @@
 use serde::Serialize;
-use crate::{models::{constant::Constant, types::RenderedType}, utils::html::to_html};
+use crate::{models::{binding::Binding, constant::Constant, types::RenderedType}, utils::html::to_html};
 use function::Function;
 use import::Import;
 use structure::Structure;
 
+pub mod binding;
 pub mod structure;
 pub mod import;
 pub mod types;
@@ -33,8 +34,7 @@ pub struct Wgsl {
     pub functions: Vec<Function>,
     pub structures: Vec<Structure>,
     pub constants: Vec<Constant>,
-    // TODO: add bindings
-    // TODO: add enums
+    pub bindings: Vec<Binding>,
 }
 
 impl Wgsl {

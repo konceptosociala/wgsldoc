@@ -67,15 +67,15 @@ Options:
     - [x] Structures
     - [x] Constants
     - [x] Bindings
-- [ ] HTML Generation
+- [x] HTML Generation
     - [x] Main page
-    - [ ] Modules
+    - [x] Modules
         - [x] Index page
         - [x] Module page
         - [x] Import page
         - [x] Function page
         - [x] Structure page
         - [x] Constants page
-        - [ ] Bindings page
+        - [x] Bindings page
     - [x] Source code
 - [ ] Documentation

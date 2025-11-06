@@ -29,6 +29,399 @@
    <hr>
    
    
+      <h2>Imports</h2>
+      <hr>
+      
+         <li>
+            <i>aabb.wgsl</i> as <code>
+               
+                  <a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/aabb/index.html">Aabb</a>
+               
+            </code>
+            
+         </li>
+      
+   
+   
+      <h2>Bindings</h2>
+      <hr>
+      <table>
+         <thead>
+            <tr>
+               <th>Group</th>
+               <th>Binding</th>
+               <th>Name</th>
+               <th>Type</th>
+            </tr>
+         </thead>
+         <tbody>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>screen_texture</strong>
+                     
+                        <br>
+                        <small>Screen color texture containing the rendered scene</small>
+                     
+                  </td>
+                  <td>
+                     
+                        (infer)
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>1</strong>
+                  </td>
+                  <td>
+                     <strong>screen_sampler</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         sampler
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>2</strong>
+                  </td>
+                  <td>
+                     <strong>normals_texture</strong>
+                     
+                        <br>
+                        <small>Normal vectors texture in view space for lighting calculations</small>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         texture_2d
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>3</strong>
+                  </td>
+                  <td>
+                     <strong>normals_sampler</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         sampler
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>4</strong>
+                  </td>
+                  <td>
+                     <strong>depth_texture</strong>
+                     
+                        <br>
+                        <small>Depth buffer texture storing scene depth information</small>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         texture_2d
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>5</strong>
+                  </td>
+                  <td>
+                     <strong>depth_sampler</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         sampler
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>6</strong>
+                  </td>
+                  <td>
+                     <strong>world_volume</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         texture_3d
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>7</strong>
+                  </td>
+                  <td>
+                     <strong>jitter</strong>
+                     
+                        <br>
+                        <small>Jitter values for temporal anti-aliasing and sampling</small>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         <a href='./struct.Jitter.html'>Jitter</a>
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>8</strong>
+                  </td>
+                  <td>
+                     <strong>view</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         View
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>9</strong>
+                  </td>
+                  <td>
+                     <strong>blue_noise</strong>
+                     
+                        <br>
+                        <small>Blue noise texture for high-quality stochastic sampling</small>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         texture_2d
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>10</strong>
+                  </td>
+                  <td>
+                     <strong>blue_noise_sampler</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         sampler
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>0</strong>
+                  </td>
+                  <td>
+                     <strong>11</strong>
+                  </td>
+                  <td>
+                     <strong>aabb</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         <a href='../aabb/index.html'>Aabb</a>::<a href='../aabb/struct.Aabb.html'>Aabb</a>
+      
+   </code>
+
+                     
+                  </td>
+               </tr>
+            
+         </tbody>
+      </table>
+   
    
       <h2>Constants</h2>
       <hr>
