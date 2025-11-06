@@ -60,16 +60,13 @@ Options:
     - [x] AST-only mode
     - [x] Documentation generation
     - [x] Show undocumented items
-- [ ] Parsing
+- [x] Parsing
     - [x] Modules
     - [x] Imports
     - [x] Functions
     - [x] Structures
-    - [ ] Entry points
-    - [ ] Built-in imports
-    - [ ] Constants
-    - [ ] Bindings
-    - [ ] Enums
+    - [x] Constants
+    - [x] Bindings
 - [ ] HTML Generation
     - [x] Main page
     - [ ] Modules
@@ -78,13 +75,7 @@ Options:
         - [x] Import page
         - [x] Function page
         - [x] Structure page
-        - [ ] Entry point page
-        - [ ] Built-in import page
-        - [ ] Constants page
+        - [x] Constants page
         - [ ] Bindings page
-        - [ ] Enums page
     - [x] Source code
 - [ ] Documentation
-- [ ] Search functionality
-    - [ ] Search index generation
-    - [ ] Search page

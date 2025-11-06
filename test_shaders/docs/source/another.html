@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="color-scheme" content="light dark">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/pico.classless.min.css">
+   <link rel="icon" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/favicon.png" type="image/png">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/highlight.min.css">
+   <title>test_shaders - WGSL documentation</title>
+</head>
+<body>
+   <header>
+      <hgroup>
+         <h1>test_shaders</h1>
+         <p>wgsldoc documentation</p>
+      </hgroup>
+      <nav>
+         <ul>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/index.html">Main page</a></li>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/index.html">Modules</a></li>
+            <li><span>Source</span></li>
+         </ul>
+      </nav>
+   </header>
+   <main>
+      
+   <h1>Source <code>another</code></h1>
+   <hr>
+   <pre><code class="language-wgsl">#import bevy_core_pipeline::fullscreen_vertex_shader::FullscreenVertexOutput
+#import bevy_render::view::View;
+
+@group(0) @binding(0) var screen_texture: texture_2d&lt;f32&gt;;
+@group(0) @binding(1) var screen_sampler: sampler;
+@group(0) @binding(2) var normals_texture: texture_2d&lt;f32&gt;;
+@group(0) @binding(3) var normals_sampler: sampler;
+@group(0) @binding(4) var depth_texture: texture_2d&lt;f32&gt;;
+@group(0) @binding(5) var depth_sampler: sampler;
+@group(0) @binding(6) var world_volume: texture_3d&lt;u32&gt;;
+@group(0) @binding(7) var&lt;uniform&gt; jitter: Jitter;
+@group(0) @binding(8) var&lt;uniform&gt; view: View;
+@group(0) @binding(9) var blue_noise: texture_2d&lt;f32&gt;;
+@group(0) @binding(10) var blue_noise_sampler: sampler;
+
+struct DebugOptionsRaw {
+    mode: u32,
+    frame_number: u32,
+    screen_size: vec2&lt;f32&gt;,
+    bias: f32,
+}
+
+var&lt;push_constant&gt; debug_options: DebugOptionsRaw;
+
+fn map_blue_noise(uv: vec2&lt;f32&gt;) -&gt; f32 {
+    let screen_px = uv * debug_options.screen_size;
+    let tex_uv = fract(screen_px &#x2F; 512.0);
+
+    let frame_offset = f32(debug_options.frame_number % 100u) * 0.61803398875;
+    let blue_noise = textureSample(blue_noise, blue_noise_sampler, tex_uv).r;
+    let noise = fract(blue_noise + frame_offset);
+
+    return noise;
+}
+
+@fragment
+fn fragment(in: FullscreenVertexOutput) -&gt; @location(0) vec4&lt;f32&gt; {
+    &#x2F;&#x2F; let noise = map_blue_noise(in.uv);
+    let color = textureSample(screen_texture, screen_sampler, in.uv).xyz;
+    let depth = textureSample(depth_texture, depth_sampler, in.uv).x;
+    if depth &gt;= 3.40282347E+38 {
+        return vec4&lt;f32&gt;(color, 1.0);
+    }
+
+    &#x2F;&#x2F; Generate better noise seed using frame number and screen coordinates
+    let screen_coord = floor(in.uv * debug_options.screen_size);
+    let frame_seed = f32(debug_options.frame_number % 1024u) * 0.61803398875; &#x2F;&#x2F; Golden ratio for better distribution
+    let seed_ = vec2&lt;f32&gt;(
+        screen_coord.x * 12.9898 + screen_coord.y * 78.233 + frame_seed,
+        screen_coord.x * 93.9898 + screen_coord.y * 47.233 + frame_seed * 2.5
+    );
+    let seed = ((in.uv * 2.0 - 1.0) + jitter.value) * 0.5;
+    var normal = textureSample(normals_texture, normals_sampler, in.uv).xyz;
+
+    switch debug_options.mode {
+        case 0u: {
+            let trace1 = render(
+                in.uv,
+                color, 
+                normal, 
+                seed,
+                depth,
+            );
+
+            &#x2F;&#x2F; Second sample with different seed for better quality
+            let seed2 = vec2&lt;f32&gt;(seed.y + 127.1, seed.x + 311.7);
+            let trace2 = render(
+                in.uv,
+                color, 
+                normal, 
+                seed2,
+                depth,
+            );
+
+            &#x2F;&#x2F; Average multiple samples for smoother shadows
+            return (trace1 + trace2) * 0.5;
+            &#x2F;&#x2F; return trace1;
+        }
+
+        case 1u {
+            return vec4&lt;f32&gt;(color, 1.0);
+        }
+
+        case 2u: {
+            return vec4&lt;f32&gt;(normal, 1.0);
+        }
+
+        case 3u: {
+            return vec4&lt;f32&gt;(depth*0.1, 0.0, 0.0, 1.0);
+        }
+
+        case 4u: {
+            return vec4&lt;f32&gt;(get_ray_origin(in.uv, depth), 1.0);
+        }
+
+        case 5u: {
+            return vec4&lt;f32&gt;(get_ray_direction2(seed, normal), 1.0);
+        }
+
+        default: {
+            return vec4&lt;f32&gt;(0.0);
+        }
+    }
+}
+
+const LIGHT_RADIUS: f32 = 0.08; &#x2F;&#x2F; Slightly smaller for tighter shadows
+const LIGHT_DIR: vec3&lt;f32&gt; = vec3&lt;f32&gt;(0.30, -0.95, 0.12);
+const MAX_SHADOW_DISTANCE: f32 = 10.0; &#x2F;&#x2F; Maximum distance to trace shadows
+
+&#x2F;&#x2F;&#x2F; Ambient Occlusion radius (How far to trace for occluders) 
+const AO_RADIUS: f32 = 2.0; 
+&#x2F;&#x2F;&#x2F; Ambient Occlusion samples (Number of AO samples per pixel)
+const AO_SAMPLES: u32 = 4u; 
+&#x2F;&#x2F;&#x2F; Ambient Occlusion strength (How strong the AO effect is)
+const AO_STRENGTH: f32 = 0.6; 
+
+fn calculate_ambient_occlusion(
+    origin: vec3&lt;f32&gt;,
+    normal: vec3&lt;f32&gt;,
+    seed: vec2&lt;f32&gt;,
+    dimensions: vec3&lt;u32&gt;,
+    dimensionsf: vec3&lt;f32&gt;,
+    aabb_min: vec3&lt;f32&gt;,
+    aabb_max: vec3&lt;f32&gt;,
+    bias: f32
+) -&gt; f32 {
+    var occlusion = 0.0;
+    var valid_samples = 0.0;
+    
+    for (var i = 0u; i &lt; AO_SAMPLES; i++) {
+        &#x2F;&#x2F; Generate different seeds for each sample
+        let sample_seed = seed + vec2&lt;f32&gt;(f32(i) * 23.14, f32(i) * 17.93);
+        
+        &#x2F;&#x2F; Generate random direction in hemisphere around normal
+        let ao_direction = get_ray_direction2(sample_seed, normal);
+        
+        &#x2F;&#x2F; Apply proper bias to prevent self-occlusion artifacts
+        &#x2F;&#x2F; Use the same bias calculation as shadow rays for consistency
+        let surface_offset = normal * bias * 2.0; &#x2F;&#x2F; Move away from surface
+        var ao_origin = origin + surface_offset;
+        
+        &#x2F;&#x2F; Check if ray intersects with world volume
+        let rayDistances = intersectAABB(ao_origin, ao_direction, aabb_min, aabb_max);
+        if (rayDistances.x &gt;= rayDistances.y) {
+            &#x2F;&#x2F; Ray doesn&#x27;t hit volume bounds - no occlusion
+            continue;
+        }
+        
+        ao_origin += ao_direction * rayDistances.x;
+        let p = (ao_origin - aabb_min) &#x2F; VOXEL_SIZE;
+        let d = normalize(ao_direction);
+        
+        let step = sign(ao_direction);
+        var v = floor(p);
+        
+        let tDelta = abs(1.0 &#x2F; d);
+        var tMax = vec3&lt;f32&gt;(0.0);
+        
+        &#x2F;&#x2F; Initialize tMax for each axis
+        if (d.x &lt; 0) {
+            tMax.x = (p.x - v.x) * tDelta.x;
+        } else if (d.x &gt; 0) {
+            tMax.x = (v.x + 1.0 - p.x) * tDelta.x;
+        }
+        if (d.y &lt; 0) {
+            tMax.y = (p.y - v.y) * tDelta.y;
+        } else if (d.y &gt; 0) {
+            tMax.y = (v.y + 1.0 - p.y) * tDelta.y;
+        }
+        if (d.z &lt; 0) {
+            tMax.z = (p.z - v.z) * tDelta.z;
+        } else if (d.z &gt; 0) {
+            tMax.z = (v.z + 1.0 - p.z) * tDelta.z;
+        }
+        
+        var t = 0.0;
+        let maxIterations = u32(AO_RADIUS &#x2F; VOXEL_SIZE);
+        var hit_found = false;
+        
+        &#x2F;&#x2F; Trace ray for ambient occlusion
+        for (var j = 0u; j &lt; maxIterations; j++) {
+            &#x2F;&#x2F; Check bounds
+            if (v.x &lt; 0 || v.x &gt;= dimensionsf.x || 
+                v.y &lt; 0 || v.y &gt;= dimensionsf.y || 
+                v.z &lt; 0 || v.z &gt;= dimensionsf.z) {
+                break;
+            }
+            
+            let hit = textureLoad(world_volume, vec3&lt;u32&gt;(u32(v.x), u32(v.y), u32(v.z)), 0).x;
+            if hit != 0 {
+                &#x2F;&#x2F; Found an occluder - calculate occlusion based on distance
+                let distance_factor = 1.0 - (t * VOXEL_SIZE &#x2F; AO_RADIUS);
+                occlusion += max(distance_factor, 0.0);
+                hit_found = true;
+                break;
+            }
+            
+            &#x2F;&#x2F; Step to next voxel
+            if (tMax.x &lt; tMax.y) {
+                if(tMax.x &lt; tMax.z) {
+                    v.x = v.x + step.x;
+                    t = tMax.x;
+                    tMax.x += tDelta.x;
+                } else {
+                    v.z = v.z + step.z;
+                    t = tMax.z;
+                    tMax.z += tDelta.z;
+                }
+            } else {
+                if (tMax.y &lt; tMax.z) {
+                    v.y = v.y + step.y;
+                    t = tMax.y;
+                    tMax.y += tDelta.y;
+                } else {
+                    v.z = v.z + step.z;
+                    t = tMax.z;
+                    tMax.z += tDelta.z;
+                }
+            }
+        }
+        
+        valid_samples += 1.0;
+    }
+    
+    if (valid_samples &gt; 0.0) {
+        occlusion = occlusion &#x2F; valid_samples;
+    }
+    
+    &#x2F;&#x2F; Convert occlusion to ambient factor (1.0 = no occlusion, 0.0 = full occlusion)
+    return 1.0 - (occlusion * AO_STRENGTH);
+}
+
+fn render(
+    uv: vec2&lt;f32&gt;,
+    color: vec3&lt;f32&gt;,
+    normal: vec3&lt;f32&gt;,
+    seed: vec2&lt;f32&gt;,
+    depth: f32,
+) -&gt; vec4&lt;f32&gt; {
+    var origin = get_ray_origin(uv, depth);
+    &#x2F;&#x2F; let direction = get_ray_direction2(seed, normal);
+
+    let dimensions = textureDimensions(world_volume);
+    let dimensionsf = vec3&lt;f32&gt;(f32(dimensions.x), f32(dimensions.y), f32(dimensions.z));
+
+    let aabb_min = -0.5 * dimensionsf * VOXEL_SIZE;
+    let aabb_max =  0.5 * dimensionsf * VOXEL_SIZE;
+
+    &#x2F;&#x2F; Calculate ambient occlusion using a different seed portion
+    let ao_seed = vec2&lt;f32&gt;(seed.x * 0.7 + 42.0, seed.y * 0.7 + 73.0);
+    let bias = debug_options.bias * VOXEL_SIZE;
+    let ao_factor_ = calculate_ambient_occlusion(origin, normal, ao_seed, dimensions, dimensionsf, aabb_min, aabb_max, bias);
+    let ao_factor = ao_factor_ * ao_factor_;
+    &#x2F;&#x2F; Better random number generation for light sampling  
+    let rng1 = rand(seed);
+    let rng2 = rand(seed * 1.618 + vec2&lt;f32&gt;(127.1, 311.7)); &#x2F;&#x2F; Better decorrelation
+    
+    &#x2F;&#x2F; Uniform disk sampling - proper implementation
+    let point_radius = LIGHT_RADIUS * sqrt(rng1);
+    let point_angle = 2.0 * PI * rng2;
+    let disk_point = vec2&lt;f32&gt;(
+        point_radius * cos(point_angle),
+        point_radius * sin(point_angle),
+    );
+
+    &#x2F;&#x2F; Create orthonormal basis for the light disk
+    let light_dir_norm = normalize(LIGHT_DIR);
+    let light_tangent = normalize(cross(light_dir_norm, vec3&lt;f32&gt;(0.0, 1.0, 0.0)));
+    let light_bitangent = cross(light_dir_norm, light_tangent); &#x2F;&#x2F; Already normalized
+
+    &#x2F;&#x2F; Sample point on the light disk and create shadow ray direction
+    let light_sample_point = disk_point.x * light_tangent + disk_point.y * light_bitangent;
+    let shadow_ray_dir = normalize(light_dir_norm + light_sample_point);
+
+    &#x2F;&#x2F; Better bias calculation to prevent shadow acne  
+    let surface_offset = normal * bias * 2.0; &#x2F;&#x2F; Move away from surface
+    origin += surface_offset;
+
+    let rayDistances = intersectAABB(origin, shadow_ray_dir, aabb_min, aabb_max);
+    origin += shadow_ray_dir * rayDistances.x;
+
+    let p = (origin - aabb_min) &#x2F; VOXEL_SIZE;
+    let d = normalize(shadow_ray_dir);
+
+    let step = sign(shadow_ray_dir);
+
+    var v = floor(p);
+
+    let tDelta = abs(1.0 &#x2F; d);
+
+    var tMax = vec3&lt;f32&gt;(0.0);
+    if (d.x &lt; 0) {
+        tMax.x = (p.x - v.x) * tDelta.x;
+    }
+    else if (d.x &gt; 0) {
+        tMax.x = (v.x + 1.0 - p.x) * tDelta.x;
+    }
+    if (d.y &lt; 0) {
+        tMax.y = (p.y - v.y) * tDelta.y;
+    }
+    else if (d.y &gt; 0) {
+        tMax.y = (v.y + 1.0 - p.y) * tDelta.y;
+    }
+    if (d.z &lt; 0) {
+        tMax.z = (p.z - v.z) * tDelta.z;
+    }
+    else if (d.z &gt; 0) {
+        tMax.z = (v.z + 1.0 - p.z) * tDelta.z;
+    }
+
+    var t = 0.0;
+
+    let maxIterations = dimensions.x+dimensions.y+dimensions.z;
+
+    for (var i = 0u; i &lt; maxIterations; i++) {
+        let hit = textureLoad(world_volume, vec3&lt;u32&gt;(u32(v.x), u32(v.y), u32(v.z)), 0).x;
+        if hit != 0 {
+            &#x2F;&#x2F; Shadow hit - calculate shadow strength based on distance
+            let normalized_distance = min(t &#x2F; MAX_SHADOW_DISTANCE, 1.0);
+            let shadow_strength = 1.0 - normalized_distance * 0.3; &#x2F;&#x2F; Distance-based attenuation
+            let shadow_factor = shadow_strength * 0.2 + 0.1; &#x2F;&#x2F; Shadow factor between 0.1 and 0.3
+            
+            &#x2F;&#x2F; Combine shadow and ambient occlusion
+            let final_lighting = shadow_factor * ao_factor;
+            return vec4&lt;f32&gt;(color * final_lighting, 1.0);
+        }
+
+        if (tMax.x &lt; tMax.y) {
+            if(tMax.x &lt; tMax.z) {
+                v.x = v.x + step.x;
+                if (v.x &lt; 0 || v.x &gt;= dimensionsf.x) { break; }
+                t = tMax.x;
+                tMax.x += tDelta.x;
+            } else {
+                v.z = v.z + step.z;
+                if (v.z &lt; 0 || v.z &gt;= dimensionsf.z) { break; }
+                t = tMax.z;
+                tMax.z += tDelta.z;
+            }
+        } else {
+            if (tMax.y &lt; tMax.z) {
+                v.y = v.y + step.y;
+                if (v.y &lt; 0 || v.y &gt;= dimensionsf.y) { break; }
+                t = tMax.y;
+                tMax.y += tDelta.y;
+            } else {
+                v.z = v.z + step.z;
+                if (v.z &lt; 0 || v.z &gt;= dimensionsf.z) { break; }
+                t = tMax.z;
+                tMax.z += tDelta.z;
+            }
+        }
+    }
+
+    &#x2F;&#x2F; No shadow hit - apply ambient occlusion only
+    &#x2F;&#x2F; Add subtle distance-based darkening for depth
+    let distance_factor = 1.0 - min(t * 0.05, 0.2); &#x2F;&#x2F; Very subtle darkening for depth
+    let final_lighting = ao_factor * distance_factor;
+    return vec4&lt;f32&gt;(color * max(final_lighting, 0.2), 1.0); &#x2F;&#x2F; Minimum lighting of 20%
+}
+
+&#x2F;&#x2F; === UTILS ===
+
+struct Jitter {
+    value: vec2&lt;f32&gt;,
+}
+
+&#x2F;&#x2F;&#x2F; Super cool constant, what does that mean?
+const PI: f32 = 3.1415926535897932384626433;
+const VOXEL_SIZE = 1. &#x2F; 8.;
+
+fn intersectAABB(
+    ray_origin: vec3&lt;f32&gt;,
+    ray_dir: vec3&lt;f32&gt;,
+    box_min: vec3&lt;f32&gt;,
+    box_max: vec3&lt;f32&gt;,
+) -&gt; vec2&lt;f32&gt; {
+    let t_min = (box_min - ray_origin) &#x2F; ray_dir;
+    let t_max = (box_max - ray_origin) &#x2F; ray_dir;
+    let t1 = min(t_min, t_max);
+    let t2 = max(t_min, t_max);
+    var t_near = max(max(t1.x, t1.y), t1.z);
+    let t_far = min(min(t2.x, t2.y), t2.z);
+
+    if (t_near &lt; 0.0) {
+        t_near = 0.0;
+    }
+
+    return vec2&lt;f32&gt;(t_near, t_far);
+};
+
+fn cosine_sample_hemisphere(seed: vec2&lt;f32&gt;) -&gt; vec3&lt;f32&gt; {
+    let r1 = rand(seed);
+    let r2 = rand(seed.yx); &#x2F;&#x2F; decorrelate
+    let phi = 2.0 * PI * r1;
+    let x = cos(phi) * sqrt(r2);
+    let y = sin(phi) * sqrt(r2);
+    let z = sqrt(1.0 - r2);
+    return vec3&lt;f32&gt;(x, y, z); &#x2F;&#x2F; In tangent space
+}
+
+fn get_ray_direction2(seed: vec2&lt;f32&gt;, normal_in: vec3&lt;f32&gt;) -&gt; vec3&lt;f32&gt; {
+    &#x2F;&#x2F; 1) Safe normal
+    let n = normalize(normal_in);
+
+    &#x2F;&#x2F; 2) Two decorrelated uniform randoms in [0,1)
+    let r1 = rand(seed);
+    let r2 = rand(seed + vec2&lt;f32&gt;(37.0, 17.0)); &#x2F;&#x2F; cheap decorrelation
+
+    &#x2F;&#x2F; 3) Cosine-weighted sample in local (+Z) hemisphere
+    let phi = 2.0 * PI * r1;
+    let r   = sqrt(max(r2, 0.0));
+    let x   = cos(phi) * r;
+    let y   = sin(phi) * r;
+    let z   = sqrt(max(1.0 - r*r, 0.0));
+    let local_dir = vec3&lt;f32&gt;(x, y, z);
+
+    &#x2F;&#x2F; 4) Orthonormal basis (TBN) with a robust &#x27;up&#x27; selection
+    &#x2F;&#x2F;    Choose an &#x27;up&#x27; that isn&#x27;t parallel to n.
+    let up = select(vec3&lt;f32&gt;(0.0, 0.0, 1.0), vec3&lt;f32&gt;(1.0, 0.0, 0.0), abs(n.z) &gt; 0.999);
+    let tangent   = normalize(cross(up, n));
+    let bitangent = normalize(cross(n, tangent));
+
+    &#x2F;&#x2F; 5) To world
+    let dir = tangent * local_dir.x + bitangent * local_dir.y + n * local_dir.z;
+    return normalize(dir);
+}
+
+fn get_ray_direction(
+    seed: vec2&lt;f32&gt;,
+    normal: vec3&lt;f32&gt;,
+) -&gt; vec3&lt;f32&gt; {
+    let r1 = rand(seed);
+    let r2 = rand(seed.yx);
+    let phi = 2.0 * PI * r1;
+    let x = cos(phi) * sqrt(r2);
+    let y = sin(phi) * sqrt(r2);
+    let z = sqrt(1.0 - r2);
+    let local_dir = vec3&lt;f32&gt;(x, y, z);
+
+    &#x2F;&#x2F; Build orthonormal basis (TBN)
+    let up = select(vec3&lt;f32&gt;(0.0, 1.0, 0.0), vec3&lt;f32&gt;(1.0, 0.0, 0.0), abs(normal.y) &gt; 0.999);
+    let tangent = normalize(cross(up, normal));
+    let bitangent = cross(normal, tangent);
+
+    &#x2F;&#x2F; Transform to world space
+    return normalize(
+        tangent * local_dir.x +
+        bitangent * local_dir.y +
+        normal * local_dir.z
+    );
+}
+
+fn get_ray_origin(
+    coords: vec2&lt;f32&gt;,
+    depth_lin: f32,
+) -&gt; vec3&lt;f32&gt; {
+    &#x2F;&#x2F; UV [0,1] -&gt; NDC [-1,1], flip Y (screen origin at top-left)
+    let ndc_xy = vec2&lt;f32&gt;(coords.x * 2.0 - 1.0, (1.0 - coords.y) * 2.0 - 1.0);
+
+    &#x2F;&#x2F; Unproject a point on the far plane to get the per-pixel *view-space direction*
+    var v4 = view.view_from_clip * vec4&lt;f32&gt;(ndc_xy, 1.0, 1.0);
+    v4 &#x2F;= v4.w;
+    let dir_v = normalize(v4.xyz); &#x2F;&#x2F; z should be negative for a typical right-handed view
+
+    &#x2F;&#x2F; Scale along the view ray so that -z == depth_lin:
+    &#x2F;&#x2F; P = t * dir_v, want -P.z = depth_lin =&gt; t = depth_lin &#x2F; (-dir_v.z)
+    let t = depth_lin &#x2F; (-dir_v.z + 1e-8);
+    let pos_v = dir_v * t;
+
+    &#x2F;&#x2F; View -&gt; World
+    return (view.world_from_view * vec4&lt;f32&gt;(pos_v, 1.0)).xyz;
+}
+
+fn rand(seed: vec2&lt;f32&gt;) -&gt; f32 {
+    &#x2F;&#x2F; Better white noise function with multiple octaves
+    let dot_val = dot(seed, vec2&lt;f32&gt;(12.9898, 78.233));
+    let noise1 = fract(sin(dot_val) * 43758.5453123);
+    
+    let dot_val2 = dot(seed, vec2&lt;f32&gt;(269.5, 183.3));
+    let noise2 = fract(sin(dot_val2) * 59374.2861);
+    
+    return fract(noise1 + noise2 * 0.5);
+}</code></pre>
+
+   </main>
+
+   <footer>
+      <small>Built with <a href="https://github.com/konceptosociala/wgsldoc" target="_blank">wgsldoc</a></small>
+   </footer>
+
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/highlight.min.js"></script>
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/wgsl.min.js"></script>
+   <script>hljs.highlightAll();</script>
+</body>
+</html>

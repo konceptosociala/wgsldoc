@@ -1,5 +1,5 @@
 use serde::Serialize;
-use crate::{models::types::RenderedType, utils::html::to_html};
+use crate::{models::{constant::Constant, types::RenderedType}, utils::html::to_html};
 use function::Function;
 use import::Import;
 use structure::Structure;
@@ -8,6 +8,7 @@ pub mod structure;
 pub mod import;
 pub mod types;
 pub mod function;
+pub mod constant;
 
 #[derive(Debug, Serialize)]
 pub struct ComponentInfo {
@@ -31,9 +32,7 @@ pub struct Wgsl {
     pub imports: Vec<Import>,
     pub functions: Vec<Function>,
     pub structures: Vec<Structure>,
-    // TODO: add entry points
-    // TODO: add builtin imports
-    // TODO: add constants
+    pub constants: Vec<Constant>,
     // TODO: add bindings
     // TODO: add enums
 }

@@ -1,4 +1,5 @@
 {% extends "base.html.tera" %}
+{% import "macros.tera" as macros %}
 {% block content %}
    <h1>Module <code>{{ module.name }}</code></h1>
    <hr>
@@ -21,6 +22,40 @@
             {% endif %}
          </li>
       {% endfor %}
+   {% endif %}
+   {% if constants %}
+      <h2>Constants</h2>
+      <hr>
+      <table>
+         <thead>
+            <tr>
+               <th>Name</th>
+               <th>Type</th>
+               <th>Value</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for const in constants %}
+               <tr>
+                  <td>
+                     <strong>{{ const.name }}</strong>
+                     {% if const.docs %}
+                        <br>
+                        <small>{{ const.docs }}</small>
+                     {% endif %}
+                  </td>
+                  <td>
+                     {% if const.ty %}
+                        {{ macros::render_type(type=const.ty) }}
+                     {% else %}
+                        (infer)
+                     {% endif %}
+                  </td>
+                  <td>{{ const.value }}</td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
    {% endif %}
    {% if functions %}
       <h2>Functions</h2>

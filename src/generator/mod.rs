@@ -276,6 +276,11 @@ impl Generator for TeraGenerator {
         ctx.insert("module", &shader.info_rich_text());
         ctx.insert("imports", &shader.imports);
 
+        let constants = shader.constants.iter()
+            .map(|c| c.rendered(&shader.imports))
+            .collect::<Vec<_>>();
+        ctx.insert("constants", &constants);
+
         let functions = shader.functions.iter()
             .map(|f| f.info_plain_text())
             .collect::<Vec<_>>();

@@ -1,4 +1,38 @@
-SHADER = _{ SOI ~ GLOBAL_DOCS? ~ (IMPORT|BUILTIN_IMPORT|FUNCTION|STRUCTURE)* ~ EOI }
+SHADER = _{ SOI ~ GLOBAL_DOCS? ~ (IMPORT | BUILTIN_IMPORT | _PUSH_CONSTANTS | FUNCTION | STRUCTURE | RESOURCE_BINDING | CONST)* ~ EOI }
+
+// BINDINGS
+
+NUMBER = { ASCII_DIGIT+ }
+
+ATTR_GROUP   = { "@group(" ~ NUMBER ~ ")" }
+ATTR_BINDING = { "@binding(" ~ NUMBER ~ ")" }
+
+BINDING_ATTRS = { ATTR_GROUP ~ ATTR_BINDING }
+
+STORAGE_CLASS = { "uniform" | "storage" | "private" | "workgroup" }
+VAR_TEMPLATE  = { "<" ~ STORAGE_CLASS ~ ">" }
+
+RESOURCE_BINDING = {
+  DOCS? ~ BINDING_ATTRS ~
+  "var" ~ (VAR_TEMPLATE)? ~ IDENT ~ ":" ~ TYPE ~ ";"?
+}
+
+// CONSTANTS
+
+CONST = { DOCS? ~ "const" ~ IDENT ~ (":" ~ TYPE)? ~ "=" ~ CONST_VALUE ~ ";" }
+CONST_VALUE = { (!";" ~ ANY)* }
+
+// DECORATORS
+
+LOCATION = _{ "@location(" ~ SILENT_NUMBER ~ ")" }
+
+SILENT_NUMBER = _{ ASCII_DIGIT+ }
+
+ENTRY = _{ "@fragment" | "@vertex" | "@compute" }
+
+// PUSH_CONSTANTS
+
+_PUSH_CONSTANTS = { "var<push_constant>" ~ IDENT ~ ":" ~ TYPE ~ ";" }
 
 // IMPORTS
 
@@ -14,43 +48,37 @@ BUILTIN_IMPORT_CONTENT = { IMPORT_PATH ~ ("::" ~ (MODULE_NAME | IMPORT_LIST))* }
 
 IMPORT_LIST = { "{" ~ MODULE_NAME ~ ("," ~ MODULE_NAME)* ~ ","? ~"}" }
 
-
 // STRUCTURES
 
 STRUCTURE = { DOCS? ~ "struct" ~ IDENT ~ "{" ~ FIELDS ~ "}" }
 
 FIELDS = { (FIELD ~ ",")* ~ FIELD? }
 
-FIELD = { DOCS? ~ IDENT ~ ":" ~ TYPE }
+FIELD = { DOCS? ~ IDENT ~ ":" ~ LOCATION? ~ TYPE }
 
 // FUNCTIONS
 
-FUNCTION = { DOCS? ~ "fn" ~ IDENT ~ "(" ~ ARGS? ~ ")" ~ RETURN? ~ CODE_BLOCK }
+FUNCTION = { DOCS? ~ ENTRY? ~ "fn" ~ IDENT ~ "(" ~ ARGS? ~ ")" ~ RETURN? ~ CODE_BLOCK ~ ";"? }
 
 ARGS = { (ARG ~ ",")* ~ ARG? }
 
 ARG = { DOCS? ~ IDENT ~ ":" ~ FUNCTION_TYPE }
 
-RETURN = { "->" ~ TYPE }
+RETURN = { "->" ~ LOCATION? ~ TYPE }
 
 CODE_BLOCK  = _{ "{" ~ (CODE_CONTENT)* ~ "}" }
 CODE_CONTENT = _{ (!("{" | "}")) ~ ANY | CODE_BLOCK }
 
-// ENUMS
-
-ENUM = { "// @enum" }
-
 // TYPES
 
-FUNCTION_TYPE = { FUNCTION_POINTER | PRIMITIVE | VECTOR | PATH_TYPE }
-
 TYPE = { PRIMITIVE | VECTOR | PATH_TYPE }
+FUNCTION_TYPE = { FUNCTION_POINTER | PRIMITIVE | VECTOR | PATH_TYPE }
 
 FUNCTION_POINTER = { "ptr" ~ "<" ~ "function" ~ "," ~ TYPE ~ ">" }
 
-PRIVATE_POINTER = { "ptr" ~ "<" ~ "private" ~ "," ~ TYPE ~ ">" }
+GENERIC_ARGS = { "<" ~ TYPE ~ ("," ~ TYPE)* ~ ">" }
 
-PATH_TYPE = { (MODULE ~ "::")? ~ IDENT }
+PATH_TYPE = { (MODULE ~ "::")? ~ IDENT ~ GENERIC_ARGS? }
 
 MODULE = { IDENT }
 

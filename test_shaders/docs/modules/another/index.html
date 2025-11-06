@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="color-scheme" content="light dark">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/pico.classless.min.css">
+   <link rel="icon" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/favicon.png" type="image/png">
+   <link rel="stylesheet" href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/css/highlight.min.css">
+   <title>test_shaders - WGSL documentation</title>
+</head>
+<body>
+   <header>
+      <hgroup>
+         <h1>test_shaders</h1>
+         <p>wgsldoc documentation</p>
+      </hgroup>
+      <nav>
+         <ul>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/index.html">Main page</a></li>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/index.html">Modules</a></li>
+            <li><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/source/another.html">Source</a></li>
+         </ul>
+      </nav>
+   </header>
+   <main>
+      
+   <h1>Module <code>another</code></h1>
+   <hr>
+   
+   
+   
+      <h2>Constants</h2>
+      <hr>
+      <table>
+         <thead>
+            <tr>
+               <th>Name</th>
+               <th>Type</th>
+               <th>Value</th>
+            </tr>
+         </thead>
+         <tbody>
+            
+               <tr>
+                  <td>
+                     <strong>LIGHT_RADIUS</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         f32
+      
+   </code>
+
+                     
+                  </td>
+                  <td>0.08</td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>LIGHT_DIR</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         vec3&lt;f32&gt;
+      
+   </code>
+
+                     
+                  </td>
+                  <td>vec3<f32>(0.30, -0.95, 0.12)</td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>MAX_SHADOW_DISTANCE</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         f32
+      
+   </code>
+
+                     
+                  </td>
+                  <td>10.0</td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>AO_RADIUS</strong>
+                     
+                        <br>
+                        <small>Ambient Occlusion radius (How far to trace for occluders) </small>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         f32
+      
+   </code>
+
+                     
+                  </td>
+                  <td>2.0</td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>AO_SAMPLES</strong>
+                     
+                        <br>
+                        <small>Ambient Occlusion samples (Number of AO samples per pixel)</small>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         u32
+      
+   </code>
+
+                     
+                  </td>
+                  <td>4u</td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>AO_STRENGTH</strong>
+                     
+                        <br>
+                        <small>Ambient Occlusion strength (How strong the AO effect is)</small>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         f32
+      
+   </code>
+
+                     
+                  </td>
+                  <td>0.6</td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>PI</strong>
+                     
+                        <br>
+                        <small>Super cool constant, what does that mean?</small>
+                     
+                  </td>
+                  <td>
+                     
+                        
+   <code>
+      
+      
+         
+      
+
+      
+      
+         f32
+      
+   </code>
+
+                     
+                  </td>
+                  <td>3.1415926535897932384626433</td>
+               </tr>
+            
+               <tr>
+                  <td>
+                     <strong>VOXEL_SIZE</strong>
+                     
+                  </td>
+                  <td>
+                     
+                        (infer)
+                     
+                  </td>
+                  <td>1. / 8.</td>
+               </tr>
+            
+         </tbody>
+      </table>
+   
+   
+      <h2>Functions</h2>
+      <hr>
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.map_blue_noise.html">map_blue_noise</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.fragment.html">fragment</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.calculate_ambient_occlusion.html">calculate_ambient_occlusion</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.render.html">render</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.intersectAABB.html">intersectAABB</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.cosine_sample_hemisphere.html">cosine_sample_hemisphere</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.get_ray_direction2.html">get_ray_direction2</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.get_ray_direction.html">get_ray_direction</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.get_ray_origin.html">get_ray_origin</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/fn.rand.html">rand</a></code></li>
+         
+      
+   
+   
+      <h2>Structures</h2>
+      <hr>
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/struct.DebugOptionsRaw.html">DebugOptionsRaw</a></code></li>
+         
+      
+         
+            <li><code><a href="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/modules/another/struct.Jitter.html">Jitter</a></code></li>
+         
+      
+   
+
+   </main>
+
+   <footer>
+      <small>Built with <a href="https://github.com/konceptosociala/wgsldoc" target="_blank">wgsldoc</a></small>
+   </footer>
+
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/highlight.min.js"></script>
+   <script type="text/javascript" src="/home/nutov2/doc/ks/proj/wgsldoc/test_shaders/docs/js/wgsl.min.js"></script>
+   <script>hljs.highlightAll();</script>
+</body>
+</html>
