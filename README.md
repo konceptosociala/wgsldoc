@@ -38,6 +38,58 @@ or for `stdout`
 wgsldoc -A
 ```
 
+### AST example:
+
+Simple shader:
+```wgsl
+@group(0) @binding(0) var<uniform> color: vec4<f32>;
+
+@fragment
+fn main() -> @location(0) vec4<f32> {
+    return color;
+}
+```
+
+```rust
+simple => Wgsl {
+    module_name: "simple",
+    source_code: "...",
+    global_docs: None,
+    imports: [],
+    functions: [
+        Function {
+            docs: None,
+            name: "main",
+            args: [],
+            return_ty: Some(
+                Vector(
+                    Vector {
+                        dimension: D4,
+                        ty: Float32,
+                    },
+                ),
+            ),
+        },
+    ],
+    structures: [],
+    constants: [],
+    bindings: [
+        Binding {
+            docs: None,
+            attr_group: 0,
+            attr_binding: 0,
+            name: "color",
+            ty: Vector(
+                Vector {
+                    dimension: D4,
+                    ty: Float32,
+                },
+            ),
+        },
+    ],
+}
+```
+
 More advanced usage:
 
 ```bash
@@ -79,4 +131,4 @@ Options:
         - [x] Constants page
         - [x] Bindings page
     - [x] Source code
-- [ ] Documentation
+- [x] Documentation

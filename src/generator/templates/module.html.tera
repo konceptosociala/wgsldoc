@@ -52,11 +52,7 @@
                      {% endif %}
                   </td>
                   <td>
-                     {% if binding.attr_binding %}
-                        {{ macros::render_type(type=binding.ty) }}
-                     {% else %}
-                        (infer)
-                     {% endif %}
+                     {{ macros::render_type(type=binding.ty) }}
                   </td>
                </tr>
             {% endfor %}
