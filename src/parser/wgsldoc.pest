@@ -1,17 +1,35 @@
+/// Root rule for parsing a complete WGSL shader file.
+/// Matches from start of input (SOI) to end of input (EOI).
+/// Can contain optional global docs followed by any number of imports, functions, structures, bindings, or constants
 SHADER = _{ SOI ~ GLOBAL_DOCS? ~ (IMPORT | BUILTIN_IMPORT | _PUSH_CONSTANTS | FUNCTION | STRUCTURE | RESOURCE_BINDING | CONST)* ~ EOI }
 
 // BINDINGS
 
+/// Matches one or more ASCII digits to represent a number
 NUMBER = { ASCII_DIGIT+ }
 
+/// Matches the @group(N) attribute used in resource bindings.
+/// Specifies the bind group number for a resource
 ATTR_GROUP   = { "@group(" ~ NUMBER ~ ")" }
+
+/// Matches the @binding(N) attribute used in resource bindings.
+/// Specifies the binding number within a bind group
 ATTR_BINDING = { "@binding(" ~ NUMBER ~ ")" }
 
+/// Matches both @group and @binding attributes together.
+/// Both attributes are required for resource bindings in WGSL
 BINDING_ATTRS = { ATTR_GROUP ~ ATTR_BINDING }
 
+/// Matches WGSL storage class keywords.
+/// Defines how a variable is stored and accessed
 STORAGE_CLASS = { "uniform" | "storage" | "private" | "workgroup" }
+
+/// Matches the optional storage class template syntax for variables.
+/// Example: <uniform>, <storage>, etc.
 VAR_TEMPLATE  = { "<" ~ STORAGE_CLASS ~ ">" }
 
+/// Matches a complete resource binding declaration.
+/// Example: @group(0) @binding(0) var<uniform> myBuffer: MyType;
 RESOURCE_BINDING = {
   DOCS? ~ BINDING_ATTRS ~
   "var" ~ (VAR_TEMPLATE)? ~ IDENT ~ ":" ~ TYPE ~ ";"?
@@ -19,91 +37,175 @@ RESOURCE_BINDING = {
 
 // CONSTANTS
 
+/// Matches a constant declaration.
+/// Example: const PI: f32 = 3.14159;
 CONST = { DOCS? ~ "const" ~ IDENT ~ (":" ~ TYPE)? ~ "=" ~ CONST_VALUE ~ ";" }
+
+/// Matches the value assigned to a constant.
+/// Captures everything until the semicolon
 CONST_VALUE = { (!";" ~ ANY)* }
 
 // DECORATORS
 
+/// Matches the @location(N) attribute for shader inputs/outputs.
+/// Silent rule that doesn't create an AST node
 LOCATION = _{ "@location(" ~ SILENT_NUMBER ~ ")" }
 
+/// Matches a number without creating an AST node.
+/// Used internally by other rules
 SILENT_NUMBER = _{ ASCII_DIGIT+ }
 
+/// Matches shader entry point attributes.
+/// Silent rule for @fragment, @vertex, or @compute
 ENTRY = _{ "@fragment" | "@vertex" | "@compute" }
 
 // PUSH_CONSTANTS
 
+/// Matches push constant declarations.
+/// Example: var<push_constant> pc: PushConstants;
+/// Prefixed with underscore to indicate it's not exposed in the public API
 _PUSH_CONSTANTS = { "var<push_constant>" ~ IDENT ~ ":" ~ TYPE ~ ";" }
 
 // IMPORTS
 
+/// Matches an import path.
+/// Can be a file path with alphanumeric characters, slashes, dots, and underscores
 IMPORT_PATH = { PATH }
 
+/// Matches a module name identifier.
 MODULE_NAME = { IDENT }
 
+/// Matches a simple import statement with an alias.
+/// Example: #import "path/to/file.wgsl" as myModule;
 IMPORT = { DOCS? ~ "#import" ~ IMPORT_PATH ~ "as" ~ MODULE_NAME ~ ";"? }
 
+/// Matches a builtin-style import statement.
+/// Supports nested paths and selective imports.
+/// Example: #import path::to::module
 BUILTIN_IMPORT = { DOCS? ~ "#import" ~ BUILTIN_IMPORT_CONTENT ~ ";"? }
 
+/// Matches the content of a builtin import.
+/// Supports chained paths with :: separator and selective imports with braces.
+/// Example: path::to::{item1, item2}
 BUILTIN_IMPORT_CONTENT = { IMPORT_PATH ~ ("::" ~ (MODULE_NAME | IMPORT_LIST))* }
 
+/// Matches a comma-separated list of module names within braces.
+/// Used for selective imports.
+/// Example: {foo, bar, baz}
 IMPORT_LIST = { "{" ~ MODULE_NAME ~ ("," ~ MODULE_NAME)* ~ ","? ~"}" }
 
 // STRUCTURES
 
+/// Matches a complete struct definition.
+/// Example: struct MyStruct { field1: f32, field2: vec3<f32> }
 STRUCTURE = { DOCS? ~ "struct" ~ IDENT ~ "{" ~ FIELDS ~ "}" }
 
+/// Matches a comma-separated list of struct fields.
+/// Allows optional trailing comma
 FIELDS = { (FIELD ~ ",")* ~ FIELD? }
 
+/// Matches a single struct field.
+/// Example: myField: f32 or @location(0) position: vec3<f32>
 FIELD = { DOCS? ~ IDENT ~ ":" ~ LOCATION? ~ TYPE }
 
 // FUNCTIONS
 
+/// Matches a complete function definition.
+/// Can be a regular function or a shader entry point (@vertex, @fragment, @compute).
+/// Example: fn myFunc(arg: f32) -> f32 { return arg * 2.0; }
 FUNCTION = { DOCS? ~ ENTRY? ~ "fn" ~ IDENT ~ "(" ~ ARGS? ~ ")" ~ RETURN? ~ CODE_BLOCK ~ ";"? }
 
+/// Matches a comma-separated list of function arguments.
+/// Allows optional trailing comma
 ARGS = { (ARG ~ ",")* ~ ARG? }
 
+/// Matches a single function argument.
+/// Example: myArg: f32
 ARG = { DOCS? ~ IDENT ~ ":" ~ FUNCTION_TYPE }
 
+/// Matches the return type of a function.
+/// Example: -> f32 or -> @location(0) vec4<f32>
 RETURN = { "->" ~ LOCATION? ~ TYPE }
 
+/// Matches a code block within curly braces.
+/// Silent rule that recursively captures nested blocks
 CODE_BLOCK  = _{ "{" ~ (CODE_CONTENT)* ~ "}" }
+
+/// Matches content within a code block.
+/// Handles nested braces recursively
 CODE_CONTENT = _{ (!("{" | "}")) ~ ANY | CODE_BLOCK }
 
 // TYPES
 
+/// Matches any valid WGSL type (primitive, vector, or custom path type)
 TYPE = { PRIMITIVE | VECTOR | PATH_TYPE }
+
+/// Matches any valid type that can be used in function signatures.
+/// Includes function pointers in addition to regular types
 FUNCTION_TYPE = { FUNCTION_POINTER | PRIMITIVE | VECTOR | PATH_TYPE }
 
+/// Matches a function pointer type.
+/// Example: ptr<function, f32>
 FUNCTION_POINTER = { "ptr" ~ "<" ~ "function" ~ "," ~ TYPE ~ ">" }
 
+/// Matches generic type arguments.
+/// Example: <f32> or <f32, u32>
 GENERIC_ARGS = { "<" ~ TYPE ~ ("," ~ TYPE)* ~ ">" }
 
+/// Matches a type defined by a path (potentially module-qualified).
+/// Example: MyType or module::MyType or Vec<f32>
 PATH_TYPE = { (MODULE ~ "::")? ~ IDENT ~ GENERIC_ARGS? }
 
+/// Matches a module identifier in a path
 MODULE = { IDENT }
 
+/// Matches WGSL primitive types.
+/// Includes floating point (f32, f64), signed/unsigned integers (i8-i64, u8-u64), and bool
 PRIMITIVE = { ("f" ~ ("32"|"64")) | (("i"|"u") ~ ("8"|"16"|"32"|"64")) | "bool" }
 
+/// Matches WGSL vector types.
+/// Example: vec2<f32>, vec3<u32>, vec4<i32>
 VECTOR = { "vec" ~ VECTOR_DIMENSION ~ "<" ~ PRIMITIVE ~ ">" }
 
+/// Matches valid vector dimensions (2, 3, or 4)
 VECTOR_DIMENSION = { "2"|"3"|"4" }
 
 // GENERIC
 
+/// Matches an identifier (variable, function, type, or module name).
+/// Must start with a letter and can contain letters, numbers, and underscores.
+/// Atomic rule that doesn't allow whitespace within
 IDENT = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
 
+/// Matches a file path.
+/// Can contain alphanumeric characters, slashes, dots, and underscores.
+/// Atomic rule that doesn't allow whitespace within
 PATH = @{ (ASCII_ALPHANUMERIC|"/"|"."|"_")+ }
 
 // DOCS
 
+/// Matches global documentation comments for the entire shader module.
+/// Uses //! syntax (similar to Rust's module-level docs).
+/// Can span multiple lines, each starting with //!
 GLOBAL_DOCS = { ("//!" ~ DOCS_CONTENT)+ }
 
+/// Matches documentation comments for items (functions, structs, etc.).
+/// Uses /// syntax (similar to Rust's item documentation).
+/// Can span multiple lines, each starting with ///
 DOCS = { ("///" ~ DOCS_CONTENT)+ }
 
+/// Matches the content of a documentation comment line.
+/// Captures everything until the end of the line.
+/// Atomic rule to preserve exact spacing and formatting
 DOCS_CONTENT = @{ (!NEWLINE ~ ANY)* }
 
 // BUILTIN
 
+/// Matches regular comments (not documentation comments).
+/// Silent rule that filters out from the AST.
+/// Uses // syntax but not followed by / or ! (to distinguish from doc comments)
 COMMENT = _{ "//" ~ !("/"|"!") ~ (!NEWLINE ~ ANY)* }
 
+/// Matches whitespace characters (spaces, tabs, newlines).
+/// Silent rule that is automatically ignored by the parser
 WHITESPACE = _{ " " | "\t" | "\n" | "\r\n" }

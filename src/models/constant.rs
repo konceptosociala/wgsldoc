@@ -21,13 +21,13 @@ pub struct RenderedConstant {
 }
 
 impl Constant {
-    pub fn new(
-        docs: Option<String>,
-        name: String,
-        ty: Option<Type>,
-        value: String,
-    ) -> Constant {
-        Constant { docs, name, ty, value }
+    pub fn new(docs: Option<String>, name: String, ty: Option<Type>, value: String) -> Constant {
+        Constant {
+            docs,
+            name,
+            ty,
+            value,
+        }
     }
 
     pub fn docs(&self) -> Option<&str> {
@@ -65,8 +65,8 @@ impl Constant {
         }
     }
 
-    /// Returns a [`ComponentInfo`] containing a summary of the function documentation, 
-    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated 
+    /// Returns a [`ComponentInfo`] containing a summary of the function documentation,
+    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated
     /// to `ComponentInfo::SUMMARY_MAX_LENGTH` characters if necessary.
     pub fn info_plain_text(&self) -> ComponentInfo {
         let summary = self.docs.as_deref().map(|docs| {
@@ -94,17 +94,16 @@ impl Constant {
 
 impl RegisterImports for Constant {
     fn register_imports(&mut self, imports: &[Import]) {
-        if let Some(Type::Path(ref mut ty)) = &mut self.ty { 
-            ty.register_imports(imports) 
+        if let Some(Type::Path(ref mut ty)) = &mut self.ty {
+            ty.register_imports(imports)
         }
     }
 
     fn register_same_module_types(&mut self, type_names: &[String]) {
-        if let Some(Type::Path(ref mut ty)) = &mut self.ty { 
+        if let Some(Type::Path(ref mut ty)) = &mut self.ty {
             ty.register_same_module_types(type_names)
         }
     }
 }
 
 impl_eq_name!(Constant::name);
-

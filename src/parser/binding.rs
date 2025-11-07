@@ -1,11 +1,11 @@
-use pest::iterators::Pair;
-use crate::models::{binding::Binding, types::Type};
 use super::{error::ParsingError, FromPest, Rule};
+use crate::models::{binding::Binding, types::Type};
+use pest::iterators::Pair;
 
 impl FromPest for Binding {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
-    where 
-        Self: Sized
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError>
+    where
+        Self: Sized,
     {
         match element.as_rule() {
             Rule::RESOURCE_BINDING => {
@@ -30,16 +30,16 @@ impl FromPest for Binding {
 
                                     docs.push_str(docs_element.as_span().as_str());
                                 }
-                                    
+
                                 docs = docs.filter(|s| !s.is_empty());
                             }
-                        },
+                        }
                         Rule::IDENT => {
                             name = const_element.as_span().as_str().to_owned();
-                        },
+                        }
                         Rule::TYPE => {
                             ty = Type::from_pest(const_element)?;
-                        },
+                        }
                         Rule::BINDING_ATTRS => {
                             for binding_attr_element in const_element.into_inner() {
                                 match binding_attr_element.as_rule() {
@@ -51,7 +51,7 @@ impl FromPest for Binding {
                                             .as_span()
                                             .as_str();
                                         attr_group = group_str.parse::<u16>().unwrap_or(0);
-                                    },
+                                    }
                                     Rule::ATTR_BINDING => {
                                         let binding_str = binding_attr_element
                                             .into_inner()
@@ -60,23 +60,21 @@ impl FromPest for Binding {
                                             .as_span()
                                             .as_str();
                                         attr_binding = binding_str.parse::<u16>().unwrap_or(0);
-                                    },
-                                    _ => {},
+                                    }
+                                    _ => {}
                                 }
                             }
-                        },
-                        _ => {},
+                        }
+                        _ => {}
                     }
                 }
 
                 Ok(Binding::new(docs, attr_group, attr_binding, name, ty))
-            },
-            _ => Err(
-                ParsingError::InvalidPestRule { 
-                    expected: Rule::RESOURCE_BINDING, 
-                    found: element.as_rule(),
-                }
-            )
+            }
+            _ => Err(ParsingError::InvalidPestRule {
+                expected: Rule::RESOURCE_BINDING,
+                found: element.as_rule(),
+            }),
         }
     }
 }

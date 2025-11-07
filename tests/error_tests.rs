@@ -1,7 +1,7 @@
+use fs_err as fs;
 use std::path::PathBuf;
 use wgsldoc::parser::WgslParser;
 use wgsldoc::Document;
-use fs_err as fs;
 
 #[test]
 fn test_parse_invalid_syntax() {

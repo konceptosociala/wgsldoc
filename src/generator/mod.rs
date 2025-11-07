@@ -1,14 +1,9 @@
-use std::path::Path;
-use tera::Tera;
 use crate::{
-    models::{
-        function::Function, 
-        import::Import, 
-        structure::Structure, 
-        ComponentInfo, Wgsl,
-    }, 
+    models::{function::Function, import::Import, structure::Structure, ComponentInfo, Wgsl},
     utils::html::to_html,
 };
+use std::path::Path;
+use tera::Tera;
 
 /// Assets module containing static files as constants.
 pub mod assets {
@@ -28,25 +23,25 @@ pub mod assets {
 pub trait Generator {
     /// Generates documentation for a function.
     fn generate_fn(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
-        function: &Function, 
+        function: &Function,
         imports: &[Import],
     ) -> String;
 
     /// Generates documentation for a structure.
     fn generate_struct(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
-        structure: &Structure, 
+        structure: &Structure,
         imports: &[Import],
     ) -> String;
 
     /// Generates the index page documentation.
     fn generate_index(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
         readme: Option<&str>,
@@ -54,7 +49,7 @@ pub trait Generator {
 
     /// Generates the modules index documentation.
     fn generate_modules_index(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
         modules: &[ComponentInfo],
@@ -62,7 +57,7 @@ pub trait Generator {
 
     /// Generates documentation for a module.
     fn generate_module(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
         shader: &Wgsl,
@@ -124,61 +119,60 @@ impl TeraGenerator {
 
 impl Generator for TeraGenerator {
     fn generate_fn(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
-        function: &Function, 
+        function: &Function,
         imports: &[Import],
     ) -> String {
         let mut ctx = tera::Context::new();
         ctx.insert("pkg_name", pkg_name);
 
         if let Some(base_url) = &self.base_url {
-            ctx.insert("assets_subpath", 
-                base_url
-                    .trim_end_matches('/')
-            );
+            ctx.insert("assets_subpath", base_url.trim_end_matches('/'));
         } else {
-            ctx.insert("assets_subpath",
+            ctx.insert(
+                "assets_subpath",
                 assets_subpath
                     .as_ref()
                     .to_str()
                     .unwrap_or("")
-                    .trim_end_matches('/')
+                    .trim_end_matches('/'),
             );
         }
 
         ctx.insert("function_info", &function.info_rich_text());
         ctx.insert("args", &function.rendered_args(imports));
-        ctx.insert("return_type", &function.return_type()
-            .map(|ty| ty.rendered_type(imports, false))
+        ctx.insert(
+            "return_type",
+            &function
+                .return_type()
+                .map(|ty| ty.rendered_type(imports, false)),
         );
 
         self.tera.render("fn.html.tera", &ctx).unwrap()
     }
 
     fn generate_struct(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
-        structure: &Structure, 
+        structure: &Structure,
         imports: &[Import],
     ) -> String {
         let mut ctx = tera::Context::new();
         ctx.insert("pkg_name", pkg_name);
 
         if let Some(base_url) = &self.base_url {
-            ctx.insert("assets_subpath", 
-                base_url
-                    .trim_end_matches('/')
-            );
+            ctx.insert("assets_subpath", base_url.trim_end_matches('/'));
         } else {
-            ctx.insert("assets_subpath",
+            ctx.insert(
+                "assets_subpath",
                 assets_subpath
                     .as_ref()
                     .to_str()
                     .unwrap_or("")
-                    .trim_end_matches('/')
+                    .trim_end_matches('/'),
             );
         }
 
@@ -189,26 +183,24 @@ impl Generator for TeraGenerator {
     }
 
     fn generate_index(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
         readme: Option<&str>,
     ) -> String {
         let mut ctx = tera::Context::new();
         ctx.insert("pkg_name", pkg_name);
-        
+
         if let Some(base_url) = &self.base_url {
-            ctx.insert("assets_subpath", 
-                base_url
-                    .trim_end_matches('/')
-            );
+            ctx.insert("assets_subpath", base_url.trim_end_matches('/'));
         } else {
-            ctx.insert("assets_subpath",
+            ctx.insert(
+                "assets_subpath",
                 assets_subpath
                     .as_ref()
                     .to_str()
                     .unwrap_or("")
-                    .trim_end_matches('/')
+                    .trim_end_matches('/'),
             );
         }
 
@@ -220,7 +212,7 @@ impl Generator for TeraGenerator {
     }
 
     fn generate_modules_index(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
         modules: &[ComponentInfo],
@@ -229,17 +221,15 @@ impl Generator for TeraGenerator {
         ctx.insert("pkg_name", pkg_name);
 
         if let Some(base_url) = &self.base_url {
-            ctx.insert("assets_subpath", 
-                base_url
-                    .trim_end_matches('/')
-            );
+            ctx.insert("assets_subpath", base_url.trim_end_matches('/'));
         } else {
-            ctx.insert("assets_subpath",
+            ctx.insert(
+                "assets_subpath",
                 assets_subpath
                     .as_ref()
                     .to_str()
                     .unwrap_or("")
-                    .trim_end_matches('/')
+                    .trim_end_matches('/'),
             );
         }
 
@@ -249,7 +239,7 @@ impl Generator for TeraGenerator {
     }
 
     fn generate_module(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
         shader: &Wgsl,
@@ -258,17 +248,15 @@ impl Generator for TeraGenerator {
         ctx.insert("pkg_name", pkg_name);
 
         if let Some(base_url) = &self.base_url {
-            ctx.insert("assets_subpath", 
-                base_url
-                    .trim_end_matches('/')
-            );
+            ctx.insert("assets_subpath", base_url.trim_end_matches('/'));
         } else {
-            ctx.insert("assets_subpath",
+            ctx.insert(
+                "assets_subpath",
                 assets_subpath
                     .as_ref()
                     .to_str()
                     .unwrap_or("")
-                    .trim_end_matches('/')
+                    .trim_end_matches('/'),
             );
         }
 
@@ -276,22 +264,30 @@ impl Generator for TeraGenerator {
         ctx.insert("module", &shader.info_rich_text());
         ctx.insert("imports", &shader.imports);
 
-        let bindings = shader.bindings.iter()
+        let bindings = shader
+            .bindings
+            .iter()
             .map(|b| b.rendered(&shader.imports))
             .collect::<Vec<_>>();
         ctx.insert("bindings", &bindings);
 
-        let constants = shader.constants.iter()
+        let constants = shader
+            .constants
+            .iter()
             .map(|c| c.rendered(&shader.imports))
             .collect::<Vec<_>>();
         ctx.insert("constants", &constants);
 
-        let functions = shader.functions.iter()
+        let functions = shader
+            .functions
+            .iter()
             .map(|f| f.info_plain_text())
             .collect::<Vec<_>>();
         ctx.insert("functions", &functions);
 
-        let structures = shader.structures.iter()
+        let structures = shader
+            .structures
+            .iter()
             .map(|s| s.info_plain_text())
             .collect::<Vec<_>>();
         ctx.insert("structures", &structures);
@@ -300,7 +296,7 @@ impl Generator for TeraGenerator {
     }
 
     fn generate_source(
-        &mut self, 
+        &mut self,
         pkg_name: &str,
         assets_subpath: impl AsRef<Path>,
         shader: &Wgsl,
@@ -309,17 +305,15 @@ impl Generator for TeraGenerator {
         ctx.insert("pkg_name", pkg_name);
 
         if let Some(base_url) = &self.base_url {
-            ctx.insert("assets_subpath", 
-                base_url
-                    .trim_end_matches('/')
-            );
+            ctx.insert("assets_subpath", base_url.trim_end_matches('/'));
         } else {
-            ctx.insert("assets_subpath",
+            ctx.insert(
+                "assets_subpath",
                 assets_subpath
                     .as_ref()
                     .to_str()
                     .unwrap_or("")
-                    .trim_end_matches('/')
+                    .trim_end_matches('/'),
             );
         }
 

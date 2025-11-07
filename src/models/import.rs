@@ -1,7 +1,7 @@
+use crate::{impl_eq_name, models::ComponentInfo, utils::html::to_html};
+use serde::Serialize;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
-use serde::Serialize;
-use crate::{impl_eq_name, models::ComponentInfo, utils::html::to_html};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Import {
@@ -13,11 +13,7 @@ pub struct Import {
 }
 
 impl Import {
-    pub fn new(
-        docs: Option<String>,
-        path: PathBuf,
-        name: String
-    ) -> Import {
+    pub fn new(docs: Option<String>, path: PathBuf, name: String) -> Import {
         Import {
             docs: docs.map(|s| to_html(&s)),
             module_name: path
@@ -35,7 +31,7 @@ impl Import {
         &self.module_name
     }
 
-    /// Returns a [`ComponentInfo`] containing a summary of the import documentation, 
+    /// Returns a [`ComponentInfo`] containing a summary of the import documentation,
     /// with the summary extracted from the rendered Markdown as HTML.
     pub fn info_rich_text(&self) -> ComponentInfo {
         let summary = self.docs.as_deref().map(to_html);
@@ -43,8 +39,8 @@ impl Import {
         ComponentInfo::new(self.name.clone(), summary)
     }
 
-    /// Returns a [`ComponentInfo`] containing a summary of the import documentation, 
-    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated 
+    /// Returns a [`ComponentInfo`] containing a summary of the import documentation,
+    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated
     /// to `ComponentInfo::SUMMARY_MAX_LENGTH` characters if necessary.
     pub fn info_plain_text(&self) -> ComponentInfo {
         let summary = self.docs.as_deref().map(|docs| {
@@ -78,19 +74,19 @@ impl Import {
 
         self.registered
     }
-    
+
     pub fn docs(&self) -> Option<&str> {
         self.docs.as_deref()
     }
-    
+
     pub fn path(&self) -> &Path {
         &self.path
     }
-    
+
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn registered(&self) -> bool {
         self.registered
     }

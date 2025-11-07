@@ -1,15 +1,18 @@
-use serde::Serialize;
-use crate::{models::{binding::Binding, constant::Constant, types::RenderedType}, utils::html::to_html};
+use crate::{
+    models::{binding::Binding, constant::Constant, types::RenderedType},
+    utils::html::to_html,
+};
 use function::Function;
 use import::Import;
+use serde::Serialize;
 use structure::Structure;
 
 pub mod binding;
-pub mod structure;
-pub mod import;
-pub mod types;
-pub mod function;
 pub mod constant;
+pub mod function;
+pub mod import;
+pub mod structure;
+pub mod types;
 
 #[derive(Debug, Serialize)]
 pub struct ComponentInfo {
@@ -38,7 +41,7 @@ pub struct Wgsl {
 }
 
 impl Wgsl {
-    /// Returns a [`ComponentInfo`] containing a summary of the WGSL documentation, 
+    /// Returns a [`ComponentInfo`] containing a summary of the WGSL documentation,
     /// with the summary extracted from the rendered Markdown as HTML.
     pub fn info_rich_text(&self) -> ComponentInfo {
         let summary = self.global_docs.as_deref().map(to_html);
@@ -46,8 +49,8 @@ impl Wgsl {
         ComponentInfo::new(self.module_name.clone(), summary)
     }
 
-    /// Returns a [`ComponentInfo`] containing a summary of the WGSL documentation, 
-    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated 
+    /// Returns a [`ComponentInfo`] containing a summary of the WGSL documentation,
+    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated
     /// to `ComponentInfo::SUMMARY_MAX_LENGTH` characters if necessary.
     pub fn info_plain_text(&self) -> ComponentInfo {
         let summary = self.global_docs.as_deref().map(|docs| {

@@ -1,19 +1,22 @@
+use crate::models::{
+    binding::Binding, constant::Constant, function::Function, import::Import, structure::Structure,
+    Wgsl,
+};
+use error::ParsingError;
 use pest::{iterators::Pair, Parser};
 use pest_derive::Parser;
-use error::ParsingError;
-use crate::models::{Wgsl, binding::Binding, constant::Constant, function::Function, import::Import, structure::Structure};
 
+pub mod binding;
+pub mod constant;
 pub mod error;
 pub mod function;
 pub mod import;
 pub mod structure;
 pub mod types;
-pub mod constant;
-pub mod binding;
 
 pub trait FromPest {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
-    where 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError>
+    where
         Self: Sized;
 }
 
@@ -46,7 +49,7 @@ impl WgslParser {
                     } else {
                         bindings.push(binding);
                     }
-                },
+                }
                 Rule::STRUCTURE => {
                     let structure = Structure::from_pest(shader_element)?;
 
@@ -55,7 +58,7 @@ impl WgslParser {
                     } else {
                         structures.push(structure);
                     }
-                },
+                }
                 Rule::FUNCTION => {
                     let function = Function::from_pest(shader_element)?;
 
@@ -64,7 +67,7 @@ impl WgslParser {
                     } else {
                         functions.push(function);
                     }
-                },
+                }
                 Rule::IMPORT => {
                     let import = Import::from_pest(shader_element)?;
 
@@ -73,7 +76,7 @@ impl WgslParser {
                     } else {
                         imports.push(import);
                     }
-                },
+                }
                 Rule::CONST => {
                     let constant = Constant::from_pest(shader_element)?;
                     if constants.contains(&constant) {
@@ -81,7 +84,7 @@ impl WgslParser {
                     } else {
                         constants.push(constant);
                     }
-                },
+                }
                 Rule::GLOBAL_DOCS => {
                     for docs_element in shader_element.into_inner() {
                         if global_docs.is_none() {
@@ -95,11 +98,11 @@ impl WgslParser {
 
                             global_docs.push_str(docs_element.as_span().as_str());
                         }
-                            
+
                         global_docs = global_docs.filter(|s| !s.is_empty());
                     }
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
 

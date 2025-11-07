@@ -1,13 +1,13 @@
-use std::str::FromStr;
-use pest::iterators::Pair;
-use thiserror::Error;
-use crate::models::types::{PathType, Primitive, Type, Vector, VectorDimension};
 use super::{error::ParsingError, FromPest, Rule};
+use crate::models::types::{PathType, Primitive, Type, Vector, VectorDimension};
+use pest::iterators::Pair;
+use std::str::FromStr;
+use thiserror::Error;
 
 impl FromPest for Type {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
-    where 
-        Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError>
+    where
+        Self: Sized,
     {
         match element.as_rule() {
             Rule::TYPE => {
@@ -17,25 +17,23 @@ impl FromPest for Type {
                     match type_element.as_rule() {
                         Rule::PRIMITIVE => {
                             ty = Type::Primitive(Primitive::from_pest(type_element)?);
-                        }, 
+                        }
                         Rule::VECTOR => {
                             ty = Type::Vector(Vector::from_pest(type_element)?);
-                        }, 
+                        }
                         Rule::PATH_TYPE => {
                             ty = Type::Path(PathType::from_pest(type_element)?);
-                        }, 
+                        }
                         _ => {}
                     }
                 }
 
                 Ok(ty)
-            },
-            _ => Err(
-                ParsingError::InvalidPestRule {
-                    expected: Rule::TYPE,
-                    found: element.as_rule(),
-                }
-            )
+            }
+            _ => Err(ParsingError::InvalidPestRule {
+                expected: Rule::TYPE,
+                found: element.as_rule(),
+            }),
         }
     }
 }
@@ -68,28 +66,24 @@ impl FromStr for Primitive {
 }
 
 impl FromPest for Primitive {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
-    where 
-        Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError>
+    where
+        Self: Sized,
     {
         match element.as_rule() {
-            Rule::PRIMITIVE => Ok(
-                Primitive::from_str(element.as_span().as_str())?
-            ),
-            _ => Err(
-                ParsingError::InvalidPestRule {
-                    expected: Rule::PRIMITIVE,
-                    found: element.as_rule(),
-                }
-            )
+            Rule::PRIMITIVE => Ok(Primitive::from_str(element.as_span().as_str())?),
+            _ => Err(ParsingError::InvalidPestRule {
+                expected: Rule::PRIMITIVE,
+                found: element.as_rule(),
+            }),
         }
     }
 }
 
 impl FromPest for Vector {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
-    where 
-        Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError>
+    where
+        Self: Sized,
     {
         match element.as_rule() {
             Rule::VECTOR => {
@@ -100,22 +94,20 @@ impl FromPest for Vector {
                     match vector_element.as_rule() {
                         Rule::VECTOR_DIMENSION => {
                             dimension = VectorDimension::from_pest(vector_element)?;
-                        },
+                        }
                         Rule::PRIMITIVE => {
                             ty = Primitive::from_pest(vector_element)?;
-                        },
-                        _ => {},
+                        }
+                        _ => {}
                     }
                 }
-                
+
                 Ok(Vector::new(dimension, ty))
-            },
-            _ => Err(
-                ParsingError::InvalidPestRule {
-                    expected: Rule::VECTOR,
-                    found: element.as_rule(),
-                }
-            )
+            }
+            _ => Err(ParsingError::InvalidPestRule {
+                expected: Rule::VECTOR,
+                found: element.as_rule(),
+            }),
         }
     }
 }
@@ -140,28 +132,24 @@ impl FromStr for VectorDimension {
 }
 
 impl FromPest for VectorDimension {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
-    where 
-        Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError>
+    where
+        Self: Sized,
     {
         match element.as_rule() {
-            Rule::VECTOR_DIMENSION => Ok(
-                VectorDimension::from_str(element.as_span().as_str())?
-            ),
-            _ => Err(
-                ParsingError::InvalidPestRule {
-                    expected: Rule::VECTOR_DIMENSION,
-                    found: element.as_rule(),
-                }
-            )
+            Rule::VECTOR_DIMENSION => Ok(VectorDimension::from_str(element.as_span().as_str())?),
+            _ => Err(ParsingError::InvalidPestRule {
+                expected: Rule::VECTOR_DIMENSION,
+                found: element.as_rule(),
+            }),
         }
     }
 }
 
 impl FromPest for PathType {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
-    where 
-        Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError>
+    where
+        Self: Sized,
     {
         match element.as_rule() {
             Rule::PATH_TYPE => {
@@ -173,22 +161,20 @@ impl FromPest for PathType {
                         Rule::MODULE => {
                             module = Some(path_type_element.as_span().as_str().to_owned())
                                 .filter(|s| !s.is_empty());
-                        },
+                        }
                         Rule::IDENT => {
                             name = path_type_element.as_span().as_str().to_owned();
                         }
-                        _ => {},
+                        _ => {}
                     }
                 }
 
                 Ok(PathType::new(module, name))
-            },
-            _ => Err(
-                ParsingError::InvalidPestRule {
-                    expected: Rule::PATH_TYPE,
-                    found: element.as_rule(),
-                }
-            )
+            }
+            _ => Err(ParsingError::InvalidPestRule {
+                expected: Rule::PATH_TYPE,
+                found: element.as_rule(),
+            }),
         }
     }
 }

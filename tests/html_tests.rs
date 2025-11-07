@@ -99,7 +99,7 @@ This is a paragraph.
 ## Subtitle
 
 Another paragraph with **bold** and _italic_."#;
-    
+
     let result = to_html(markdown);
     assert!(result.contains("<h1>"));
     assert!(result.contains("Title"));

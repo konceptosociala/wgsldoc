@@ -1,12 +1,12 @@
-use std::path::PathBuf;
-use pest::iterators::Pair;
-use crate::models::import::Import;
 use super::{error::ParsingError, FromPest, Rule};
+use crate::models::import::Import;
+use pest::iterators::Pair;
+use std::path::PathBuf;
 
 impl FromPest for Import {
-    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError> 
-    where 
-        Self: Sized 
+    fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError>
+    where
+        Self: Sized,
     {
         match element.as_rule() {
             Rule::IMPORT => {
@@ -29,28 +29,26 @@ impl FromPest for Import {
 
                                     docs.push_str(docs_element.as_span().as_str());
                                 }
-                                    
+
                                 docs = docs.filter(|s| !s.is_empty());
                             }
-                        },
+                        }
                         Rule::IMPORT_PATH => {
                             path = PathBuf::from(import_element.as_span().as_str());
-                        },
+                        }
                         Rule::MODULE_NAME => {
                             name = import_element.as_span().as_str().to_owned();
                         }
-                        _ => {},
+                        _ => {}
                     }
                 }
 
                 Ok(Import::new(docs, path, name))
-            },
-            _ => Err(
-                ParsingError::InvalidPestRule { 
-                    expected: Rule::IMPORT, 
-                    found: element.as_rule(),
-                }
-            )
+            }
+            _ => Err(ParsingError::InvalidPestRule {
+                expected: Rule::IMPORT,
+                found: element.as_rule(),
+            }),
         }
     }
 }

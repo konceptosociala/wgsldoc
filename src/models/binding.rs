@@ -1,6 +1,12 @@
 use serde::Serialize;
 
-use crate::{impl_eq_name, models::{import::{Import, RegisterImports}, types::{RenderedType, Type}}};
+use crate::{
+    impl_eq_name,
+    models::{
+        import::{Import, RegisterImports},
+        types::{RenderedType, Type},
+    },
+};
 
 #[derive(Debug)]
 pub struct Binding {
@@ -13,13 +19,13 @@ pub struct Binding {
 
 impl RegisterImports for Binding {
     fn register_imports(&mut self, imports: &[Import]) {
-        if let Type::Path(ref mut ty) = &mut self.ty { 
-            ty.register_imports(imports) 
+        if let Type::Path(ref mut ty) = &mut self.ty {
+            ty.register_imports(imports)
         }
     }
 
     fn register_same_module_types(&mut self, type_names: &[String]) {
-        if let Type::Path(ref mut ty) = &mut self.ty { 
+        if let Type::Path(ref mut ty) = &mut self.ty {
             ty.register_same_module_types(type_names)
         }
     }
@@ -44,7 +50,13 @@ impl Binding {
         name: String,
         ty: Type,
     ) -> Binding {
-        Binding { docs, attr_group, attr_binding, name, ty }
+        Binding {
+            docs,
+            attr_group,
+            attr_binding,
+            name,
+            ty,
+        }
     }
 
     pub fn docs(&self) -> Option<&str> {

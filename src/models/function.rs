@@ -1,11 +1,11 @@
+use super::{
+    import::{Import, RegisterImports},
+    types::{PathType, Primitive, Type, Vector},
+};
 use crate::{
     impl_eq_name,
     models::{types::RenderedType, ComponentInfo, RenderedArgField},
     utils::html::to_html,
-};
-use super::{
-    import::{Import, RegisterImports},
-    types::{PathType, Primitive, Type, Vector},
 };
 
 #[derive(Debug)]
@@ -13,17 +13,22 @@ pub struct Function {
     docs: Option<String>,
     name: String,
     args: Vec<Arg>,
-    return_ty: Option<Type>
+    return_ty: Option<Type>,
 }
 
 impl Function {
     pub fn new(
-        docs: Option<String>, 
-        name: String, 
-        args: Vec<Arg>, 
+        docs: Option<String>,
+        name: String,
+        args: Vec<Arg>,
         return_ty: Option<Type>,
     ) -> Function {
-        Function { docs, name, args, return_ty }
+        Function {
+            docs,
+            name,
+            args,
+            return_ty,
+        }
     }
 
     pub fn rendered_args(&self, imports: &[Import]) -> Vec<RenderedArgField> {
@@ -39,8 +44,12 @@ impl Function {
                         name: v.to_string(),
                         ..Default::default()
                     },
-                    FunctionType::Path(path) => Type::Path(path.clone()).rendered_type(imports, false),
-                    FunctionType::FunctionPointer(inner_ty) => inner_ty.rendered_type(imports, true),
+                    FunctionType::Path(path) => {
+                        Type::Path(path.clone()).rendered_type(imports, false)
+                    }
+                    FunctionType::FunctionPointer(inner_ty) => {
+                        inner_ty.rendered_type(imports, true)
+                    }
                 };
 
                 RenderedArgField {
@@ -52,7 +61,7 @@ impl Function {
             .collect()
     }
 
-    /// Returns a [`ComponentInfo`] containing a summary of the function documentation, 
+    /// Returns a [`ComponentInfo`] containing a summary of the function documentation,
     /// with the summary extracted from the rendered Markdown as HTML.
     pub fn info_rich_text(&self) -> ComponentInfo {
         let summary = self.docs.as_deref().map(to_html);
@@ -60,8 +69,8 @@ impl Function {
         ComponentInfo::new(self.name.clone(), summary)
     }
 
-    /// Returns a [`ComponentInfo`] containing a summary of the function documentation, 
-    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated 
+    /// Returns a [`ComponentInfo`] containing a summary of the function documentation,
+    /// with the summary extracted from the rendered Markdown as plain text. The summary is truncated
     /// to `ComponentInfo::SUMMARY_MAX_LENGTH` characters if necessary.
     pub fn info_plain_text(&self) -> ComponentInfo {
         let summary = self.docs.as_deref().map(|docs| {
@@ -85,19 +94,19 @@ impl Function {
 
         ComponentInfo::new(self.name.clone(), summary)
     }
-    
+
     pub fn docs(&self) -> Option<&str> {
         self.docs.as_deref()
     }
-    
+
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn args(&self) -> &[Arg] {
         &self.args
     }
-    
+
     pub fn return_type(&self) -> Option<&Type> {
         self.return_ty.as_ref()
     }
@@ -135,22 +144,18 @@ pub struct Arg {
 }
 
 impl Arg {
-    pub fn new(
-        docs: Option<String>, 
-        name: String, 
-        ty: FunctionType,
-    ) -> Arg {
+    pub fn new(docs: Option<String>, name: String, ty: FunctionType) -> Arg {
         Arg { docs, name, ty }
     }
-    
+
     pub fn docs(&self) -> Option<&str> {
         self.docs.as_deref()
     }
-    
+
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn argument_type(&self) -> &FunctionType {
         &self.ty
     }
@@ -161,19 +166,19 @@ impl RegisterImports for Arg {
         match &mut self.ty {
             FunctionType::FunctionPointer(Type::Path(ref mut path_type)) => {
                 path_type.register_imports(imports);
-            },
+            }
             FunctionType::Path(ref mut ty) => ty.register_imports(imports),
-            _ => {},
+            _ => {}
         }
     }
-    
+
     fn register_same_module_types(&mut self, type_names: &[String]) {
         match &mut self.ty {
             FunctionType::FunctionPointer(Type::Path(ref mut path_type)) => {
                 path_type.register_same_module_types(type_names);
-            },
+            }
             FunctionType::Path(ref mut ty) => ty.register_same_module_types(type_names),
-            _ => {},
+            _ => {}
         }
     }
 }

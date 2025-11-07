@@ -18,7 +18,7 @@ fn add(a: i32, b: i32) -> i32 {
     return a + b;
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -36,13 +36,16 @@ fn add(a: i32, b: i32) -> i32 {
     return a + b;
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
     assert_eq!(shader.functions.len(), 1);
     assert!(shader.functions[0].docs().is_some());
-    assert!(shader.functions[0].docs().unwrap().contains("Adds two numbers"));
+    assert!(shader.functions[0]
+        .docs()
+        .unwrap()
+        .contains("Adds two numbers"));
 }
 
 #[test]
@@ -53,7 +56,7 @@ struct Point {
     y: f32,
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -73,7 +76,7 @@ struct Point {
     y: f32,
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -87,7 +90,7 @@ fn test_parse_import() {
     let shader_code = r#"
 #import utils.wgsl as Utils;
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -101,7 +104,7 @@ fn test_parse_import_with_docs() {
 /// Utils import with some markdown
 #import utils.wgsl as Utils;
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -117,7 +120,7 @@ struct VectorData {
     color: vec4<f32>,
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -133,7 +136,7 @@ fn distance(a: vec3<f32>, b: vec3<f32>) -> f32 {
     return length(diff);
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -148,7 +151,7 @@ fn set_value(ptr: ptr<function, f32>) {
     *ptr = 42.0;
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -164,12 +167,15 @@ fn test_parse_global_docs() {
 
 fn test() {}
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
     assert!(shader.global_docs.is_some());
-    assert!(shader.global_docs.unwrap().contains("global module documentation"));
+    assert!(shader
+        .global_docs
+        .unwrap()
+        .contains("global module documentation"));
 }
 
 #[test]
@@ -177,7 +183,7 @@ fn test_parse_path_type() {
     let shader_code = r#"
 fn use_camera(camera: Utils::Camera) {}
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -200,7 +206,7 @@ fn multiply(a: i32, b: i32) -> i32 {
     return a * b;
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -221,7 +227,7 @@ struct Color {
     b: f32,
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -244,7 +250,7 @@ fn on_coords(pos: vec2<u32>) -> Ray {
     return Ray(vec3<f32>(0.0, 0.0, 0.0), vec3<f32>(1.0, 0.0, 0.0));
 }
 "#;
-    
+
     let result = WgslParser::parse("ray", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -271,7 +277,7 @@ struct Primitives {
     k: i64,
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();
@@ -288,7 +294,7 @@ struct Vectors {
     v4: vec4<f32>,
 }
 "#;
-    
+
     let result = WgslParser::parse("test", shader_code);
     assert!(result.is_ok());
     let shader = result.unwrap();

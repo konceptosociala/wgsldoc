@@ -1,6 +1,6 @@
-use std::fmt::Display;
-use serde::Serialize;
 use super::import::{Import, RegisterImports};
+use serde::Serialize;
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub enum Type {
@@ -106,17 +106,14 @@ impl Display for Vector {
 }
 
 impl Vector {
-    pub fn new(
-        dimension: VectorDimension, 
-        ty: Primitive,
-    ) -> Vector {
+    pub fn new(dimension: VectorDimension, ty: Primitive) -> Vector {
         Vector { dimension, ty }
     }
-    
+
     pub fn vector_type(&self) -> &Primitive {
         &self.ty
     }
-    
+
     pub fn dimension(&self) -> &VectorDimension {
         &self.dimension
     }
@@ -124,7 +121,7 @@ impl Vector {
 
 #[derive(Debug, Default)]
 pub enum VectorDimension {
-    D2, 
+    D2,
     #[default]
     D3,
     D4,
@@ -146,25 +143,22 @@ pub struct PathType {
 }
 
 impl PathType {
-    pub fn new(
-        module: Option<String>, 
-        name: String, 
-    ) -> PathType {
-        PathType { 
-            module, 
-            name, 
+    pub fn new(module: Option<String>, name: String) -> PathType {
+        PathType {
+            module,
+            name,
             import_module: ImportModule::Undefined,
         }
     }
-    
+
     pub fn module(&self) -> Option<&str> {
         self.module.as_deref()
     }
-    
+
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn import_module(&self) -> &ImportModule {
         &self.import_module
     }

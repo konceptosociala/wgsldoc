@@ -1,5 +1,5 @@
-use wgsldoc::models::types::{Primitive, Vector, VectorDimension, PathType, Type, ImportModule};
 use std::str::FromStr;
+use wgsldoc::models::types::{ImportModule, PathType, Primitive, Type, Vector, VectorDimension};
 
 #[test]
 fn test_primitive_display() {
@@ -30,19 +30,28 @@ fn test_primitive_from_str() {
 fn test_vector_display() {
     let vec2 = Vector::new(VectorDimension::D2, Primitive::Float32);
     assert_eq!(format!("{}", vec2), "vec2&lt;f32&gt;");
-    
+
     let vec3 = Vector::new(VectorDimension::D3, Primitive::Float32);
     assert_eq!(format!("{}", vec3), "vec3&lt;f32&gt;");
-    
+
     let vec4 = Vector::new(VectorDimension::D4, Primitive::Float32);
     assert_eq!(format!("{}", vec4), "vec4&lt;f32&gt;");
 }
 
 #[test]
 fn test_vector_dimension_from_str() {
-    assert!(matches!(VectorDimension::from_str("2"), Ok(VectorDimension::D2)));
-    assert!(matches!(VectorDimension::from_str("3"), Ok(VectorDimension::D3)));
-    assert!(matches!(VectorDimension::from_str("4"), Ok(VectorDimension::D4)));
+    assert!(matches!(
+        VectorDimension::from_str("2"),
+        Ok(VectorDimension::D2)
+    ));
+    assert!(matches!(
+        VectorDimension::from_str("3"),
+        Ok(VectorDimension::D3)
+    ));
+    assert!(matches!(
+        VectorDimension::from_str("4"),
+        Ok(VectorDimension::D4)
+    ));
     assert!(VectorDimension::from_str("5").is_err());
 }
 
@@ -98,7 +107,10 @@ fn test_rendered_type_function_pointer() {
 #[test]
 fn test_import_module_equality() {
     assert_eq!(ImportModule::Undefined, ImportModule::Undefined);
-    assert_eq!(ImportModule::Named("Test".to_string()), ImportModule::Named("Test".to_string()));
+    assert_eq!(
+        ImportModule::Named("Test".to_string()),
+        ImportModule::Named("Test".to_string())
+    );
     assert_eq!(ImportModule::This, ImportModule::This);
     assert_ne!(ImportModule::Undefined, ImportModule::This);
 }
@@ -108,7 +120,7 @@ fn test_type_default() {
     let ty = Type::default();
     match ty {
         Type::Primitive(p) => match p {
-            Primitive::Sint32 => {},
+            Primitive::Sint32 => {}
             _ => panic!("Expected default to be Sint32"),
         },
         _ => panic!("Expected default type to be Primitive"),

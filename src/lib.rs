@@ -1,10 +1,13 @@
-use std::{collections::HashSet, path::{Path, PathBuf}};
+use crate::generator::assets;
 use fs_err as fs;
 use generator::Generator;
 use models::{import::RegisterImports, Wgsl};
 use parser::WgslParser;
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
+};
 use utils::error::Error;
-use crate::generator::assets;
 
 pub mod cli;
 pub mod generator;
@@ -19,14 +22,11 @@ pub struct Document {
     favicon: IconData,
     readme: Option<String>,
     file_registry: HashSet<PathBuf>,
-    shaders: Vec<Wgsl>
+    shaders: Vec<Wgsl>,
 }
 
 impl Document {
-    pub fn new(
-        pkg_name: impl Into<String>, 
-        paths: &[impl AsRef<Path>],
-    ) -> Result<Document, Error> {
+    pub fn new(pkg_name: impl Into<String>, paths: &[impl AsRef<Path>]) -> Result<Document, Error> {
         log::info!("Loading shaders...");
 
         let mut readme = None;
@@ -38,10 +38,7 @@ impl Document {
             if path.as_ref().extension().is_some_and(|ext| ext == "wgsl") {
                 file_registry.insert(path.as_ref().to_owned());
 
-                if let Some(module_name) = path
-                    .as_ref()
-                    .file_stem()
-                    .and_then(|name| name.to_str()) 
+                if let Some(module_name) = path.as_ref().file_stem().and_then(|name| name.to_str())
                 {
                     if module_name.starts_with('.') {
                         continue;
@@ -51,13 +48,10 @@ impl Document {
                     shaders.push(WgslParser::parse(module_name, &shader)?);
                 }
             } else {
-                match path.as_ref()
-                    .file_name()
-                    .and_then(|name| name.to_str()) 
-                {
+                match path.as_ref().file_name().and_then(|name| name.to_str()) {
                     Some("README.md") => readme = Some(fs::read_to_string(path)?),
                     Some("favicon.png") => favicon = Some(fs::read(path)?),
-                    _ => {},
+                    _ => {}
                 }
             }
         }
@@ -134,15 +128,15 @@ impl Document {
     pub fn favicon(&self) -> &IconData {
         self.favicon.as_ref()
     }
-    
+
     pub fn shaders(&self) -> &[Wgsl] {
         &self.shaders
     }
-    
+
     pub fn file_registry(&self) -> &HashSet<PathBuf> {
         &self.file_registry
     }
-    
+
     pub fn readme(&self) -> Option<&str> {
         self.readme.as_deref()
     }
@@ -153,12 +147,12 @@ pub struct RegisteredDocument {
     favicon: IconData,
     readme: Option<String>,
     file_registry: HashSet<PathBuf>,
-    shaders: Vec<Wgsl>
+    shaders: Vec<Wgsl>,
 }
 
 impl RegisteredDocument {
     pub fn generate(
-        &self, 
+        &self,
         generator: &mut impl Generator,
         path: impl AsRef<Path>,
     ) -> Result<(), Error> {
@@ -205,13 +199,15 @@ impl RegisteredDocument {
         fs::create_dir_all(&modules_path)?;
 
         // @/modules/index.html
-        let modules = self.shaders
+        let modules = self
+            .shaders
             .iter()
             .map(|shader| shader.info_plain_text())
             .collect::<Vec<_>>();
 
         let modules_index_path = concat_path(&modules_path, "index.html");
-        let modules_index_content = generator.generate_modules_index(self.pkg_name(), path.as_ref(), &modules);
+        let modules_index_content =
+            generator.generate_modules_index(self.pkg_name(), path.as_ref(), &modules);
         fs::write(modules_index_path, modules_index_content)?;
 
         // @/modules/<module_name>/index.html
@@ -226,16 +222,28 @@ impl RegisteredDocument {
 
             // @/modules/<module_name>/fn.<function_name>.html
             for function in &shader.functions {
-                let function_path = concat_path(&module_path, &format!("fn.{}.html", function.name()));
-                let function_content = generator.generate_fn(self.pkg_name(), path.as_ref(), function, &shader.imports);
+                let function_path =
+                    concat_path(&module_path, &format!("fn.{}.html", function.name()));
+                let function_content = generator.generate_fn(
+                    self.pkg_name(),
+                    path.as_ref(),
+                    function,
+                    &shader.imports,
+                );
 
                 fs::write(function_path, function_content)?;
             }
 
             // @/modules/<module_name>/struct.<structure_name>.html
             for structure in &shader.structures {
-                let structure_path = concat_path(&module_path, &format!("struct.{}.html", structure.name()));
-                let structure_content = generator.generate_struct(self.pkg_name(), path.as_ref(), structure, &shader.imports);
+                let structure_path =
+                    concat_path(&module_path, &format!("struct.{}.html", structure.name()));
+                let structure_content = generator.generate_struct(
+                    self.pkg_name(),
+                    path.as_ref(),
+                    structure,
+                    &shader.imports,
+                );
 
                 fs::write(structure_path, structure_content)?;
             }
@@ -246,7 +254,8 @@ impl RegisteredDocument {
         fs::create_dir_all(&source_path)?;
 
         for shader in &self.shaders {
-            let source_file_path = concat_path(&source_path, &format!("{}.html", shader.module_name));
+            let source_file_path =
+                concat_path(&source_path, &format!("{}.html", shader.module_name));
             let source_content = generator.generate_source(self.pkg_name(), path.as_ref(), shader);
 
             fs::write(source_file_path, source_content)?;
@@ -262,11 +271,11 @@ impl RegisteredDocument {
     pub fn shaders(&self) -> &[Wgsl] {
         &self.shaders
     }
-    
+
     pub fn file_registry(&self) -> &HashSet<PathBuf> {
         &self.file_registry
     }
-    
+
     pub fn readme(&self) -> Option<&str> {
         self.readme.as_deref()
     }
@@ -276,10 +285,7 @@ impl RegisteredDocument {
     }
 }
 
-fn concat_path(
-    path: impl AsRef<Path>, 
-    filename: &str,
-) -> PathBuf {
+fn concat_path(path: impl AsRef<Path>, filename: &str) -> PathBuf {
     let mut buf = path.as_ref().to_path_buf();
     buf.push(filename);
 

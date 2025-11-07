@@ -50,6 +50,7 @@ Options:
   -A, --ast-only                 Generate AST and print it to stdout instead of generating full documentation
   -I, --input <FILES>            Input files to process. If not specified, the program will look for .wgsl files in the current directory
   -W, --show-undocumented        Show undocumented items in the documentation
+  -C, --credits                  Show credits
   -h, --help                     Print help (see more with '--help')
   -V, --version                  Print version
 ```
