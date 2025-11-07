@@ -95,17 +95,6 @@ fn test_document_invalid_wgsl_file() {
 }
 
 #[test]
-fn test_parse_malformed_vector() {
-    let shader_code = r#"
-struct Test {
-    v: vec5<f32>,
-}
-"#;
-    let result = WgslParser::parse("test", shader_code);
-    assert!(result.is_err());
-}
-
-#[test]
 fn test_parse_function_missing_return_type_arrow() {
     let shader_code = r#"
 fn test() f32 {

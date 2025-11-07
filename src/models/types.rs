@@ -1,15 +1,24 @@
+//! The most important module, containing data structures for representing WGSL types.
+//! Types used in functions, structures, bindings, and constants.
+//! Used for parsing, processing, and generating documentation of types.
+
 use super::import::{Import, RegisterImports};
 use serde::Serialize;
 use std::fmt::Display;
 
+/// Represents a type in WGSL. Can be a primitive, vector, or path type.
 #[derive(Debug)]
 pub enum Type {
+    /// A primitive type (e.g., `f32`, `i32`).
     Primitive(Primitive),
+    /// A vector type (e.g., `vec2<T>`, `vec3<T>`, `vec4<T>`).
     Vector(Vector),
+    /// A path type (e.g., `MyType`, `Module::MyType`).
     Path(PathType),
 }
 
 impl Type {
+    /// Converts the [`Type`] into a [`RenderedType`] for documentation rendering.
     pub fn rendered_type(&self, imports: &[Import], is_fn_ptr: bool) -> RenderedType {
         match self {
             Type::Primitive(p) => RenderedType {
@@ -55,19 +64,31 @@ impl Default for Type {
     }
 }
 
+/// Represents primitive WGSL types.
 #[derive(Debug, Default)]
 pub enum Primitive {
+    /// A boolean type.
     Bool,
+    /// A 32-bit floating-point type.
     Float32,
+    /// A 64-bit floating-point type.
     Float64,
+    /// An 8-bit unsigned integer type.
     Uint8,
+    /// A 16-bit unsigned integer type.
     Uint16,
+    /// A 32-bit unsigned integer type.
     Uint32,
+    /// A 64-bit unsigned integer type.
     Uint64,
+    /// An 8-bit signed integer type.
     Sint8,
+    /// A 16-bit signed integer type.
     Sint16,
+    /// A 32-bit signed integer type.
     #[default]
     Sint32,
+    /// A 64-bit signed integer type.
     Sint64,
 }
 
@@ -89,6 +110,7 @@ impl Display for Primitive {
     }
 }
 
+/// Represents vector WGSL types.
 #[derive(Debug, Default)]
 pub struct Vector {
     dimension: VectorDimension,
@@ -106,35 +128,49 @@ impl Display for Vector {
 }
 
 impl Vector {
+    /// Creates a new Vector instance (usually from parsed elements).
     pub fn new(dimension: VectorDimension, ty: Primitive) -> Vector {
         Vector { dimension, ty }
     }
 
+    /// Get field `type` from instance of `Vector`.
     pub fn vector_type(&self) -> &Primitive {
         &self.ty
     }
 
+    /// Get field `dimension` from instance of `Vector`.
     pub fn dimension(&self) -> &VectorDimension {
         &self.dimension
     }
 }
 
+/// Represents the dimension of a vector type.
 #[derive(Debug, Default)]
 pub enum VectorDimension {
+    /// A 2-dimensional vector.
     D2,
+    /// A 3-dimensional vector.
     #[default]
     D3,
+    /// A 4-dimensional vector.
     D4,
 }
 
+/// Structure inside a path type, indicating its import status, whether
+/// it's imported from another module, defined in the same module or 
+/// its origin is undefined.
 #[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub enum ImportModule {
+    /// The import is undefined.
     #[default]
     Undefined,
+    /// The import is named.
     Named(String),
+    /// The import is from the current module.
     This,
 }
 
+/// Represents a path type in WGSL, which may include module information and import status.
 #[derive(Debug, Clone)]
 pub struct PathType {
     module: Option<String>,
@@ -143,6 +179,7 @@ pub struct PathType {
 }
 
 impl PathType {
+    /// Creates a new PathType instance (usually from parsed elements).
     pub fn new(module: Option<String>, name: String) -> PathType {
         PathType {
             module,
@@ -151,14 +188,17 @@ impl PathType {
         }
     }
 
+    /// Get field `module` from instance of `PathType`.
     pub fn module(&self) -> Option<&str> {
         self.module.as_deref()
     }
 
+    /// Get field `name` from instance of `PathType`.
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    /// Get field `import_module` from instance of `PathType`.
     pub fn import_module(&self) -> &ImportModule {
         &self.import_module
     }
@@ -192,11 +232,18 @@ impl RegisterImports for PathType {
     }
 }
 
+/// A serializable representation of a type for rendering purposes used in Tera.
 #[derive(Serialize, Default, Debug)]
 pub struct RenderedType {
+    /// Indicates if the type is from the same module.
     pub is_this: bool,
+    /// Indicates if the type is a function pointer (like ptr<function, T>).
     pub is_function_pointer: bool,
+    /// The name of the type.
     pub name: String,
+    /// The module from which the type is imported, 
+    /// if any (used, if type has module, but import origin is undefined).
     pub module: Option<String>,
+    /// The import module name, if any.
     pub import: Option<String>,
 }

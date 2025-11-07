@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 use crate::generator::assets;
 use fs_err as fs;
 use generator::Generator;

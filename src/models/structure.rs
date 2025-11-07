@@ -1,3 +1,6 @@
+//! Structure model module used for parsing and representing WGSL structures.
+//! Used for generating structure documentation.
+
 use super::{
     import::{Import, RegisterImports},
     types::Type,
@@ -8,6 +11,13 @@ use crate::{
     utils::html::to_html,
 };
 
+/// Represents a structure in a shader module. Example:
+/// ```wgsl
+/// struct MyStruct {
+///     @location(0) position: vec3<f32>,
+///     @location(1) color: vec4<f32>,
+/// };
+/// ```
 #[derive(Debug)]
 pub struct Structure {
     docs: Option<String>,
@@ -16,10 +26,12 @@ pub struct Structure {
 }
 
 impl Structure {
+    /// Creates a new Structure instance (usually from parsed elements).
     pub fn new(docs: Option<String>, name: String, fields: Vec<Field>) -> Structure {
         Structure { docs, name, fields }
     }
 
+    /// Renders the structure's fields into a serializable form for templates.
     pub fn rendered_fields(&self, imports: &[Import]) -> Vec<RenderedArgField> {
         self.fields()
             .iter()
@@ -79,14 +91,17 @@ impl Structure {
         ComponentInfo::new(self.name.clone(), summary)
     }
 
+    /// Get field `docs` from instance of `Structure`.
     pub fn docs(&self) -> Option<&str> {
         self.docs.as_deref()
     }
 
+    /// Get field `name` from instance of `Structure`.
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    /// Get field `fields` from instance of `Structure`.
     pub fn fields(&self) -> &[Field] {
         &self.fields
     }
@@ -108,6 +123,13 @@ impl RegisterImports for Structure {
 
 impl_eq_name!(Structure::name);
 
+/// Represents a field within a structure. Example:
+/// ```wgsl
+/// @location(0) output_field: vec3<f32>,
+/// ```
+/// ```wgsl
+/// other_field: Module::Type,
+/// ```
 #[derive(Debug)]
 pub struct Field {
     docs: Option<String>,
@@ -116,18 +138,22 @@ pub struct Field {
 }
 
 impl Field {
+    /// Creates a new Field instance (usually from parsed elements).
     pub fn new(docs: Option<String>, name: String, ty: Type) -> Field {
         Field { docs, name, ty }
     }
 
+    /// Get field `docs` from instance of `Field`.
     pub fn docs(&self) -> Option<&str> {
         self.docs.as_deref()
     }
 
+    /// Get field `name` from instance of `Field`.
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    /// Get field `type` from instance of `Field`.
     pub fn field_type(&self) -> &Type {
         &self.ty
     }

@@ -1,9 +1,15 @@
-use serde::Serialize;
+//! Constant model module used for parsing and representing WGSL constants.
+//! Used for generating `const`s documentation.
 
+use serde::Serialize;
 use crate::models::import::{Import, RegisterImports};
 use crate::models::types::{RenderedType, Type};
 use crate::{impl_eq_name, models::ComponentInfo, utils::html::to_html};
 
+/// Represents a binding in a shader module. Example:
+/// ```wgsl
+/// const MY_CONSTANT: f32 = 1.0;
+/// ```
 #[derive(Debug)]
 pub struct Constant {
     docs: Option<String>,
@@ -12,15 +18,17 @@ pub struct Constant {
     value: String,
 }
 
+/// A serializable representation of a constant for rendering purposes used in Tera.
 #[derive(Serialize, Debug)]
 pub struct RenderedConstant {
-    pub docs: Option<String>,
-    pub name: String,
-    pub ty: Option<RenderedType>,
-    pub value: String,
+    docs: Option<String>,
+    name: String,
+    ty: Option<RenderedType>,
+    value: String,
 }
 
 impl Constant {
+    /// Creates a new Constant instance (usually from parsed elements).
     pub fn new(docs: Option<String>, name: String, ty: Option<Type>, value: String) -> Constant {
         Constant {
             docs,
@@ -30,22 +38,27 @@ impl Constant {
         }
     }
 
+    /// Get field `docs` from instance of `Constant`.
     pub fn docs(&self) -> Option<&str> {
         self.docs.as_deref()
     }
 
+    /// Get field `name` from instance of `Constant`.
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    /// Get field `type` from instance of `Constant`.
     pub fn constant_type(&self) -> Option<&Type> {
         self.ty.as_ref()
     }
 
+    /// Get field `value` from instance of `Constant`.
     pub fn value(&self) -> &str {
         &self.value
     }
 
+    /// Renders the constant into a serializable form for templates.
     pub fn rendered(&self, imports: &[Import]) -> RenderedConstant {
         RenderedConstant {
             docs: self.docs.clone(),

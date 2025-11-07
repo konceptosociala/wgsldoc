@@ -1,3 +1,6 @@
+//! Function model module used for parsing and representing WGSL functions.
+//! Used for generating functions documentation.
+
 use super::{
     import::{Import, RegisterImports},
     types::{PathType, Primitive, Type, Vector},
@@ -8,6 +11,13 @@ use crate::{
     utils::html::to_html,
 };
 
+/// Represents a function in a shader module. Example:
+/// ```wgsl
+/// @fragment
+/// fn myFunction(arg1: vec3<f32>, arg2: MyType) -> @location(0) vec4<f32> {
+///     // function body
+/// }
+/// ```
 #[derive(Debug)]
 pub struct Function {
     docs: Option<String>,
@@ -17,6 +27,7 @@ pub struct Function {
 }
 
 impl Function {
+    /// Creates a new Function instance (usually from parsed elements).
     pub fn new(
         docs: Option<String>,
         name: String,
@@ -31,6 +42,7 @@ impl Function {
         }
     }
 
+    /// Renders the function's arguments into a serializable form for templates.
     pub fn rendered_args(&self, imports: &[Import]) -> Vec<RenderedArgField> {
         self.args()
             .iter()
@@ -95,18 +107,22 @@ impl Function {
         ComponentInfo::new(self.name.clone(), summary)
     }
 
+    /// Get field `docs` from instance of `Function`.
     pub fn docs(&self) -> Option<&str> {
         self.docs.as_deref()
     }
 
+    /// Get field `name` from instance of `Function`.
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    /// Get field `args` from instance of `Function`.
     pub fn args(&self) -> &[Arg] {
         &self.args
     }
 
+    /// Get field `return_type` from instance of `Function`.
     pub fn return_type(&self) -> Option<&Type> {
         self.return_ty.as_ref()
     }
@@ -136,6 +152,11 @@ impl RegisterImports for Function {
 
 impl_eq_name!(Function::name);
 
+
+/// Represents a function argument in a function. Example:
+/// ```wgsl
+/// arg1: vec3<f32>
+/// ```
 #[derive(Debug)]
 pub struct Arg {
     docs: Option<String>,
@@ -144,18 +165,22 @@ pub struct Arg {
 }
 
 impl Arg {
+    /// Creates a new Arg instance (usually from parsed elements).
     pub fn new(docs: Option<String>, name: String, ty: FunctionType) -> Arg {
         Arg { docs, name, ty }
     }
 
+    /// Get field `docs` from instance of `Arg`.
     pub fn docs(&self) -> Option<&str> {
         self.docs.as_deref()
     }
 
+    /// Get field `name` from instance of `Arg`.
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    /// Get field `ty` from instance of `Arg`.
     pub fn argument_type(&self) -> &FunctionType {
         &self.ty
     }
@@ -185,11 +210,16 @@ impl RegisterImports for Arg {
 
 impl_eq_name!(Arg::name);
 
+/// Another variation of [`Type`] used specifically for function arguments.
 #[derive(Debug)]
 pub enum FunctionType {
+    /// Primitive type (e.g., `i32`, `f32`, `bool`).
     Primitive(Primitive),
+    /// Vector type (e.g., `vec2<T>`, `vec3<T>`, `vec4<T>`).
     Vector(Vector),
+    /// Path type (e.g., `MyType`, `Module::MyType`).
     Path(PathType),
+    /// Function pointer type (pointer to data used only in function arguments) (e.g., `ptr<function, Ray::HitRecord>`).
     FunctionPointer(Type),
 }
 

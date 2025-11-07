@@ -1,5 +1,7 @@
-use serde::Serialize;
+//! Binding model module used for parsing and representing WGSL bindings.
+//! Used for generating bindings documentation.
 
+use serde::Serialize;
 use crate::{
     impl_eq_name,
     models::{
@@ -8,6 +10,10 @@ use crate::{
     },
 };
 
+/// Represents a binding in a shader module. Example:
+/// ```wgsl
+/// @group(0) @binding(1) var<uniform> myBinding: MyType;
+/// ```
 #[derive(Debug)]
 pub struct Binding {
     docs: Option<String>,
@@ -33,16 +39,18 @@ impl RegisterImports for Binding {
 
 impl_eq_name!(Binding::name);
 
+/// A serializable representation of a binding for rendering purposes used in Tera.
 #[derive(Debug, Serialize)]
 pub struct RenderedBinding {
-    pub docs: Option<String>,
-    pub attr_group: u16,
-    pub attr_binding: u16,
-    pub name: String,
-    pub ty: RenderedType,
+    docs: Option<String>,
+    attr_group: u16,
+    attr_binding: u16,
+    name: String,
+    ty: RenderedType,
 }
 
 impl Binding {
+    /// Creates a new Binding instance (usually from parsed elements).
     pub fn new(
         docs: Option<String>,
         attr_group: u16,
@@ -59,18 +67,22 @@ impl Binding {
         }
     }
 
+    /// Get field `docs` from instance of `Binding`.
     pub fn docs(&self) -> Option<&str> {
         self.docs.as_deref()
     }
 
+    /// Get field `name` from instance of `Binding`.
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    /// Get field `type` from instance of `Binding`.
     pub fn binding_type(&self) -> &Type {
         &self.ty
     }
 
+    /// Renders the binding into a serializable form for templates.
     pub fn rendered(&self, imports: &[Import]) -> RenderedBinding {
         RenderedBinding {
             docs: self.docs.clone(),
