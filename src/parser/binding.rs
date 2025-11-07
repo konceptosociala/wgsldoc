@@ -1,3 +1,5 @@
+//! Module for parsing WGSL bindings using Pest and converting them into [`Binding`] model.
+
 use super::{error::ParsingError, FromPest, Rule};
 use crate::models::{binding::Binding, types::Type};
 use pest::iterators::Pair;

@@ -1,3 +1,5 @@
+//! Module for parsing WGSL constants using Pest and converting them into [`Constant`] model.
+
 use super::{error::ParsingError, FromPest, Rule};
 use crate::models::{constant::Constant, types::Type};
 use pest::iterators::Pair;

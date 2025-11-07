@@ -1,3 +1,5 @@
+//! Module for parsing WGSL imports using Pest and converting them into [`Import`] model.
+
 use super::{error::ParsingError, FromPest, Rule};
 use crate::models::import::Import;
 use pest::iterators::Pair;

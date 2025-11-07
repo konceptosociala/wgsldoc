@@ -1,3 +1,7 @@
+//! Documentation generator module.
+//! Contains traits and implementations for generating
+//! documentation from parsed WGSL shader modules.
+
 use crate::{
     models::{function::Function, import::Import, structure::Structure, ComponentInfo, Wgsl},
     utils::html::to_html,
@@ -5,8 +9,24 @@ use crate::{
 use std::path::Path;
 use tera::Tera;
 
+#[cfg(doc)]
 /// Assets module containing static files as constants.
-pub mod assets {
+pub mod assets { 
+    /// Pico.css stylesheet for minimal styling.
+    pub const PICO_CSS: &str = "...";
+    /// Highlight.js CSS for code highlighting.
+    pub const HIGHLIGHT_CSS: &str = "...";
+    /// Default favicon image in PNG format.
+    pub const DEFAULT_FAVICON: &[u8] = &[];
+    /// Highlight.js JavaScript for code highlighting.
+    pub const HIGHLIGHT_JS: &str = "...";
+    /// WGSL syntax highlighting JavaScript.
+    pub const WGSL_JS: &str = "...";
+}
+
+#[cfg(not(doc))]
+/// Assets module containing static files as constants.
+pub mod assets { 
     /// Pico.css stylesheet for minimal styling.
     pub const PICO_CSS: &str = include_str!("static/pico.classless.min.css");
     /// Highlight.js CSS for code highlighting.
@@ -78,6 +98,7 @@ pub struct TeraGenerator {
     base_url: Option<String>,
 }
 
+#[cfg(not(doc))]
 impl TeraGenerator {
     /// Macros template source.
     pub const MACROS: &str = include_str!("templates/macros.tera");
@@ -95,7 +116,29 @@ impl TeraGenerator {
     pub const FN_TEMPLATE: &str = include_str!("templates/fn.html.tera");
     /// Structure HTML template source.
     pub const STRUCT_TEMPLATE: &str = include_str!("templates/struct.html.tera");
+}
 
+#[cfg(doc)]
+impl TeraGenerator {
+    /// Macros template source.
+    pub const MACROS: &str = "...";
+    /// Base HTML template source.
+    pub const BASE_TEMPLATE: &str = "...";
+    /// Index HTML template source.
+    pub const INDEX_TEMPLATE: &str = "...";
+    /// Modules HTML template source.
+    pub const MODULES_TEMPLATE: &str = "...";
+    /// Module HTML template source.
+    pub const MODULE_TEMPLATE: &str = "...";
+    /// Source HTML template source.
+    pub const SOURCE_TEMPLATE: &str = "...";
+    /// Function HTML template source.
+    pub const FN_TEMPLATE: &str = "...";
+    /// Structure HTML template source.
+    pub const STRUCT_TEMPLATE: &str = "...";
+}
+
+impl TeraGenerator {
     /// Array of all template names and their sources.
     pub const TEMPLATES: [(&str, &str); 8] = [
         ("macros.tera", Self::MACROS),

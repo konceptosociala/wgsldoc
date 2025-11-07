@@ -1,3 +1,6 @@
+//! Module for converting markdown text to HTML.
+
+/// Converts the given markdown string to HTML.
 pub fn to_html(value: &str) -> String {
     use markdown as md;
 

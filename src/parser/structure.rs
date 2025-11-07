@@ -1,3 +1,5 @@
+//! Module for parsing WGSL structures using Pest and converting them into [`Structure`] model.
+
 use super::{error::ParsingError, FromPest, Rule};
 use crate::models::{
     structure::{Field, Structure},

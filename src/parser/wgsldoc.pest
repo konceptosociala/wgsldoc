@@ -1,3 +1,6 @@
+//! Abstract Syntax Tree (AST) grammar for WGSL documentation parser.
+//! Uses Pest parser generator syntax.
+
 /// Root rule for parsing a complete WGSL shader file.
 /// Matches from start of input (SOI) to end of input (EOI).
 /// Can contain optional global docs followed by any number of imports, functions, structures, bindings, or constants

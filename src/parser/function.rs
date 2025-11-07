@@ -1,3 +1,5 @@
+//! Module for parsing WGSL functions using Pest and converting them into [`Function`] model.
+
 use super::{error::ParsingError, FromPest, Rule};
 use crate::models::{
     function::{Arg, Function, FunctionType},

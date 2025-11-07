@@ -1,3 +1,16 @@
+//! Module containing just useful macros.
+
+/// Implements `PartialEq`, `Eq` and `Hash` for a type based on a single field
+/// (usually component name).
+/// 
+/// # Example
+/// ```rust
+/// struct Component {
+///     name: String,
+///     // other fields...
+/// }
+/// 
+/// impl_eq_name!(Component::name);
 #[macro_export]
 macro_rules! impl_eq_name {
     ($type:ident :: $name:ident) => {

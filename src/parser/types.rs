@@ -1,3 +1,5 @@
+//! Module for parsing WGSL types using Pest and converting them into [`Type`] model.
+
 use super::{error::ParsingError, FromPest, Rule};
 use crate::models::types::{PathType, Primitive, Type, Vector, VectorDimension};
 use pest::iterators::Pair;
@@ -38,6 +40,7 @@ impl FromPest for Type {
     }
 }
 
+/// Error for invalid primitive types during parsing.
 #[derive(Debug, Error)]
 #[error("Invalid primitive type `{0}`; available are bool, f32, f64, u8, u16, u32, u64, i8, i16, i32, i64")]
 pub struct InvalidPrimitiveType(String);
@@ -112,6 +115,7 @@ impl FromPest for Vector {
     }
 }
 
+/// Error for invalid vector dimensions during parsing.
 #[derive(Debug, Error)]
 #[error("Invalid vector dimension `{0}`; available are 2, 3, 4")]
 pub struct InvalidVectorDimension(String);

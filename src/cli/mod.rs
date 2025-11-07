@@ -1,3 +1,7 @@
+//! Command-line interface module for the documentation generator.
+//! Defines the structure for parsing command-line arguments
+//! using the `clap` crate.
+
 use clap::Parser;
 use std::{env, path::PathBuf};
 

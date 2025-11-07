@@ -1,3 +1,10 @@
+// Used because of `missing docs` warning inside [`Parser`] derive macro
+#![allow(missing_docs)]
+
+//! WGSL parser module. Parses WGSL shader code into Rust structures,
+//! representing various shader module elements like functions,
+//! structures, bindings, constants, and imports.
+
 use crate::models::{
     binding::Binding, constant::Constant, function::Function, import::Import, structure::Structure,
     Wgsl,
@@ -14,7 +21,10 @@ pub mod import;
 pub mod structure;
 pub mod types;
 
+/// Trait for converting Pest parse tree elements into corresponding Rust structures.
 pub trait FromPest {
+    /// Converts a Pest `Pair` element into the implementing Rust structure.
+    /// Firstly usually checks, whether the `element` is of the expected rule type.
     fn from_pest(element: Pair<'_, Rule>) -> Result<Self, ParsingError>
     where
         Self: Sized;
@@ -24,9 +34,12 @@ pub trait FromPest {
 #[grammar = "parser/wgsldoc.pest"]
 struct WgslParserInner;
 
+/// Parser for WGSL shader code.
 pub struct WgslParser;
 
 impl WgslParser {
+    /// Parses the provided WGSL shader code and returns a `Wgsl` structure
+    /// with all shader module elements.
     pub fn parse(shader_name: &str, shader: &str) -> Result<Wgsl, ParsingError> {
         let shader_elements = WgslParserInner::parse(Rule::SHADER, shader)
             .map_err(|e| ParsingError::InputParsingError(Box::new(e)))?;

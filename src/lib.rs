@@ -1,5 +1,63 @@
 #![warn(missing_docs)]
 
+//!```text
+//!                     .__       .___             
+//! __  _  ______  _____|  |    __| _/____   ____  
+//! \ \/ \/ / ___\/  ___/  |   / __ |/  _ \_/ ___\ 
+//!  \     / /_/  >___ \|  |__/ /_/ (  <_> )  \___ 
+//!   \/\_/\___  /____  >____/\____ |\____/ \___  >
+//!       /_____/     \/           \/           \/  wgsldoc v1.0.0
+//! 
+//! ```
+//! **wgsldoc** is a documentation generator for WGSL (WebGPU Shading Language) shader modules. 
+//! It parses `.wgsl` files, extracts documentation comments, and generates a structured, 
+//! searchable HTML site for easy browsing and reference.
+//! 
+//! This documentation contains all the necessary information to get started with `wgsldoc`,
+//! or use it components in your own Rust projects.
+//!
+//! ## Basic usage
+//! After installation, you can run `wgsldoc` from the command line. 
+//! The following command will generate documentation for all WGSL files (including `README.md` and `favicon.png` files) in the current directory, outputting the result
+//! to the `docs` directory:
+//!
+//! ```bash
+//! wgsldoc
+//! ```
+//!
+//! If you want to host your docs as a website, you should specify a base URL with the `-U` option:
+//!
+//! ```bash
+//! wgsldoc -U https://example.com/docs
+//! ```
+//!
+//! If you want to only generate the AST (Abstract Syntax Tree) and print it to stdout (or another stream) instead of generating full documentation, you can use the `-A` option:
+//!
+//! ```bash
+//! wgsldoc -A > ast_output.txt
+//! ```
+//! or for `stdout`
+//! ```bash
+//! wgsldoc -A
+//! ```
+//!
+//! More advanced usage:
+//!
+//! ```bash
+//! Usage: wgsldoc [OPTIONS]
+//!
+//! Options:
+//!   -N, --name <NAME>              Name of the package to generate documentation for
+//!   -D, --target-dir <TARGET_DIR>  Target directory for the generated documentation 
+//!   -U, --base-url <BASE_URL>      Base URL for future website. If specified, it will be used to generate links in the documentation. Otherwise, the links will use `target_dir` as the base URL
+//!   -A, --ast-only                 Generate AST and print it to stdout instead of generating full documentation
+//!   -I, --input <FILES>            Input files to process. If not specified, the program will look for .wgsl files in the current directory
+//!   -W, --show-undocumented        Show undocumented items in the documentation
+//!   -C, --credits                  Show credits
+//!   -h, --help                     Print help (see more with '--help')
+//!   -V, --version                  Print version
+//! ```
+
 use crate::generator::assets;
 use fs_err as fs;
 use generator::Generator;
@@ -17,8 +75,13 @@ pub mod models;
 pub mod parser;
 pub mod utils;
 
+/// Type alias for raw icon data (favicon).
 pub type IconData = Vec<u8>;
 
+/// Represents a WGSL document used for generating documentation static website.
+/// It contains package name, favicon, README content, file registry, and parsed shaders.
+/// Must be "registered" using [`Document::register`] method before generating documentation,
+/// creating a [`RegisteredDocument`] invariant.
 pub struct Document {
     pkg_name: String,
     favicon: IconData,
@@ -28,6 +91,7 @@ pub struct Document {
 }
 
 impl Document {
+    /// Creates a new `Document` by loading WGSL files and associated assets from the provided paths.
     pub fn new(pkg_name: impl Into<String>, paths: &[impl AsRef<Path>]) -> Result<Document, Error> {
         log::info!("Loading shaders...");
 
@@ -67,6 +131,7 @@ impl Document {
         })
     }
 
+    /// Creates a `Document` by reading WGSL files and associated assets from the specified directory.
     pub fn open(
         pkg_name: impl Into<String>,
         directory: impl AsRef<Path>,
@@ -79,6 +144,7 @@ impl Document {
         Document::new(pkg_name, &paths)
     }
 
+    /// Registers the document, resolving imports and preparing it for documentation generation.
     pub fn register(mut self) -> RegisteredDocument {
         log::info!("Registering document...");
 
@@ -123,27 +189,35 @@ impl Document {
         }
     }
 
+    /// Get field `pkg_name` from instance of `RegisteredDocument`.
     pub fn pkg_name(&self) -> &str {
         &self.pkg_name
     }
 
+    /// Get field `favicon` from instance of `RegisteredDocument`.
     pub fn favicon(&self) -> &IconData {
         self.favicon.as_ref()
     }
 
+    /// Get field `shaders` from instance of `RegisteredDocument`.
     pub fn shaders(&self) -> &[Wgsl] {
         &self.shaders
     }
 
+    /// Get field `file_registry` from instance of `RegisteredDocument`.
     pub fn file_registry(&self) -> &HashSet<PathBuf> {
         &self.file_registry
     }
 
+    /// Get field `readme` from instance of `RegisteredDocument`.
     pub fn readme(&self) -> Option<&str> {
         self.readme.as_deref()
     }
 }
 
+/// Represents a registered WGSL document ready for documentation generation.
+/// This struct is created by calling the [`Document::register`] method,
+/// ensuring that all imports are resolved and the document is prepared.
 pub struct RegisteredDocument {
     pkg_name: String,
     favicon: IconData,
@@ -153,6 +227,8 @@ pub struct RegisteredDocument {
 }
 
 impl RegisteredDocument {
+    /// Generates the documentation static website at the specified path using the provided generator.
+    /// This function will create the necessary directory structure and files for the documentation.
     pub fn generate(
         &self,
         generator: &mut impl Generator,
@@ -266,22 +342,27 @@ impl RegisteredDocument {
         Ok(())
     }
 
+    /// Get field `pkg_name` from instance of `RegisteredDocument`.
     pub fn pkg_name(&self) -> &str {
         &self.pkg_name
     }
 
+    /// Get field `shaders` from instance of `RegisteredDocument`.
     pub fn shaders(&self) -> &[Wgsl] {
         &self.shaders
     }
 
+    /// Get field `file_registry` from instance of `RegisteredDocument`.
     pub fn file_registry(&self) -> &HashSet<PathBuf> {
         &self.file_registry
     }
 
+    /// Get field `readme` from instance of `RegisteredDocument`.
     pub fn readme(&self) -> Option<&str> {
         self.readme.as_deref()
     }
 
+    /// Get field `favicon` from instance of `RegisteredDocument`.
     pub fn favicon(&self) -> &IconData {
         self.favicon.as_ref()
     }
