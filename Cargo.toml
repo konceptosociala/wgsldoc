@@ -1,6 +1,6 @@
 [package]
 name = "wgsldoc"
-version = "1.0.0-alpha"
+version = "1.0.0"
 edition = "2021"
 description = "Documentation generator for WGSL shaders"
 keywords = ["wgsl", "docs", "documentation"]
