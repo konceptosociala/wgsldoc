@@ -420,7 +420,7 @@ fn test_rule_field_simple() {
 
 #[test]
 fn test_rule_field_with_location() {
-    let input = "position: @location(0) vec3<f32>";
+    let input = "@location(0) position: vec3<f32>";
     let result = WgslGrammarTester::parse(Rule::FIELD, input);
     assert!(result.is_ok(), "Field with location should parse");
 }

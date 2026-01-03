@@ -44,10 +44,10 @@ pub struct Args {
     #[arg(short = 'A', long)]
     pub ast_only: bool,
 
-    /// Input files to process.
+    /// Input directory to process.
     /// If not specified, the program will look for .wgsl files in the current directory.
     #[arg(short = 'I', long = "input")]
-    pub files: Vec<PathBuf>,
+    pub directory: Option<PathBuf>,
 
     /// Show undocumented items in the documentation.
     #[arg(short = 'W', long)]

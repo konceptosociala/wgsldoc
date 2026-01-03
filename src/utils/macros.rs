@@ -5,9 +5,10 @@
 /// 
 /// # Example
 /// ```rust
+/// use wgsldoc::impl_eq_name;
+/// 
 /// struct Component {
 ///     name: String,
-///     // other fields...
 /// }
 /// 
 /// impl_eq_name!(Component::name);

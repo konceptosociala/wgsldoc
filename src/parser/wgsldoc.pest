@@ -54,6 +54,10 @@ CONST_VALUE = { (!";" ~ ANY)* }
 /// Silent rule that doesn't create an AST node
 LOCATION = _{ "@location(" ~ SILENT_NUMBER ~ ")" }
 
+BUILTIN_LOCATION = _{ "@builtin(" ~ BUILTIN_VALUE ~ ")" }
+
+BUILTIN_VALUE = _{ (!")" ~ ANY)+ }
+
 /// Matches a number without creating an AST node.
 /// Used internally by other rules
 SILENT_NUMBER = _{ ASCII_DIGIT+ }
@@ -61,6 +65,10 @@ SILENT_NUMBER = _{ ASCII_DIGIT+ }
 /// Matches shader entry point attributes.
 /// Silent rule for @fragment, @vertex, or @compute
 ENTRY = _{ "@fragment" | "@vertex" | "@compute" }
+
+/// Matches @workgroup_size attribute for compute shaders.
+/// Silent rule that doesn't create an AST node
+WORKGROUP_SIZE = _{ "@workgroup_size" ~ "(" ~ SILENT_NUMBER ~ ("," ~ SILENT_NUMBER)* ~ ")" }
 
 // PUSH_CONSTANTS
 
@@ -109,22 +117,22 @@ FIELDS = { (FIELD ~ ",")* ~ FIELD? }
 
 /// Matches a single struct field.
 /// Example: myField: f32 or @location(0) position: vec3<f32>
-FIELD = { DOCS? ~ IDENT ~ ":" ~ LOCATION? ~ TYPE }
+FIELD = { DOCS? ~ (BUILTIN_LOCATION | LOCATION)? ~ IDENT ~ ":" ~ TYPE }
 
 // FUNCTIONS
 
 /// Matches a complete function definition.
 /// Can be a regular function or a shader entry point (@vertex, @fragment, @compute).
 /// Example: fn myFunc(arg: f32) -> f32 { return arg * 2.0; }
-FUNCTION = { DOCS? ~ ENTRY? ~ "fn" ~ IDENT ~ "(" ~ ARGS? ~ ")" ~ RETURN? ~ CODE_BLOCK ~ ";"? }
+FUNCTION = { DOCS? ~ (ENTRY ~ WORKGROUP_SIZE? | WORKGROUP_SIZE)? ~ "fn" ~ IDENT ~ "(" ~ ARGS? ~ ")" ~ RETURN? ~ CODE_BLOCK ~ ";"? }
 
 /// Matches a comma-separated list of function arguments.
 /// Allows optional trailing comma
 ARGS = { (ARG ~ ",")* ~ ARG? }
 
 /// Matches a single function argument.
-/// Example: myArg: f32
-ARG = { DOCS? ~ IDENT ~ ":" ~ FUNCTION_TYPE }
+/// Example: myArg: f32 or @builtin(global_invocation_id) coords: vec3<u32>
+ARG = { DOCS? ~ (BUILTIN_LOCATION | LOCATION)? ~ IDENT ~ ":" ~ FUNCTION_TYPE }
 
 /// Matches the return type of a function.
 /// Example: -> f32 or -> @location(0) vec4<f32>

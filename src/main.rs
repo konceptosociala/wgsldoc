@@ -29,8 +29,8 @@ fn main() -> anyhow::Result<()> {
         args.target_dir = fs::canonicalize(&args.target_dir)?;
     }
 
-    let document = if !args.files.is_empty() {
-        Document::new(args.name, &args.files)?
+    let document = if let Some(directory) = &args.directory {
+        Document::open(args.name, directory.clone())?
     } else {
         Document::open(args.name, env::current_dir()?)?
     };
